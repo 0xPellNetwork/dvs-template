@@ -8,8 +8,11 @@ import (
 	"strconv"
 
 	"cosmossdk.io/math"
+	csquaringManager "github.com/0xPellNetwork/dvs-contracts-template/bindings/IncredibleSquaringServiceManager"
 	"github.com/0xPellNetwork/pellapp-sdk/dvs_msg_handler/tx"
 	pkglogger "github.com/0xPellNetwork/pellapp-sdk/logger"
+	dvslog "github.com/0xPellNetwork/pelldvs-libs/log"
+	rpclocal "github.com/0xPellNetwork/pelldvs/rpc/client/local"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/server"
@@ -21,10 +24,6 @@ import (
 	"github.com/0xPellNetwork/dvs-template/app"
 	"github.com/0xPellNetwork/dvs-template/dvs/squared/types"
 	"github.com/0xPellNetwork/dvs-template/tools"
-
-	csquaringManager "github.com/0xPellNetwork/dvs-contracts-template/bindings/IncredibleSquaringServiceManager"
-	dvslog "github.com/0xPellNetwork/pelldvs-libs/log"
-	rpclocal "github.com/0xPellNetwork/pelldvs/rpc/client/local"
 )
 
 // StartOperatorCmd defines the command to start the Operator

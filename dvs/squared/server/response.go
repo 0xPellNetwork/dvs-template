@@ -5,13 +5,13 @@ import (
 	"math/big"
 
 	"cosmossdk.io/math"
-	"github.com/0xPellNetwork/dvs-template/dvs/squared/types"
-	"github.com/0xPellNetwork/dvs-template/tools"
+	csquaringManager "github.com/0xPellNetwork/dvs-contracts-template/bindings/IncredibleSquaringServiceManager"
 	"github.com/0xPellNetwork/pellapp-sdk/pelldvs"
+	sdktypes "github.com/0xPellNetwork/pellapp-sdk/types"
 	"github.com/0xPellNetwork/pelldvs/crypto/bls"
 
-	csquaringManager "github.com/0xPellNetwork/dvs-contracts-template/bindings/IncredibleSquaringServiceManager"
-	sdktypes "github.com/0xPellNetwork/pellapp-sdk/types"
+	"github.com/0xPellNetwork/dvs-template/dvs/squared/types"
+	"github.com/0xPellNetwork/dvs-template/tools"
 )
 
 type ResponseServer struct {
