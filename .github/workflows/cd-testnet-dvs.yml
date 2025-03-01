@@ -1,0 +1,121 @@
+name: cd-testnet-dvs
+# Runs the CI end-to-end test network on all pushes to v0.38.x
+# and every pull request, but only if any Go files have been changed.
+on:
+  workflow_dispatch: # allow running workflow manually
+  pull_request:
+    branches:
+      - feat/docker-devnet
+    paths:
+      - '.github/workflows/cd-testnet-dvs.yml'
+      - 'docker/devnet/dvs/*.sh'
+      - "docker/devnet/docker-compose.dvs.yml"
+  push:
+    branches:
+      - feat/docker-devnet
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+    paths:
+      - '.github/workflows/cd-testnet-dvs.yml'
+      - 'docker/devnet/dvs/*.sh'
+      - "docker/devnet/docker-compose.dvs.yml"
+jobs:
+  deploy-staging:
+    runs-on: [ "self-hosted", "Linux", "X64", "ci", "dvs" ]
+    timeout-minutes: 10
+    env:
+      TAG: ${{ github.event.pull_request.head.sha || github.workflow_sha }}
+      COMPOSE_PROJECT_NAME: pelldvs-example-testnet
+      GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      AGGREGATOR_RPC_PORT: 26653
+      AGGREGATOR_HOST_SERVER_PORT: 46653
+      GATEWAY_HOST_SERVER_PORT: 48949
+      REGISTRY_ROUTER_ADDRESS: ${{ vars.REGISTRY_ROUTER_ADDRESS }}
+      AGGREGATOR_INDEXER_BATCH_SIZE: ${{ vars.AGGREGATOR_INDEXER_BATCH_SIZE }}
+      SERVICE_CHAIN_RPC_URL: ${{ secrets.SERVICE_CHAIN_RPC_URL }}
+      SERVICE_CHAIN_WS_URL: ${{ secrets.SERVICE_CHAIN_WS_URL }}
+      CHAIN_ID: ${{ vars.SERVICE_CHAIN_ID }}
+      NETWORK: ${{ vars.NETWORK }}
+    steps:
+      - name: overwrite env
+        run: |
+          export REGISTRY_ROUTER_ADDRESS=${REGISTRY_ROUTER_ADDRESS:-0x17f5325eC73aE21396Ccc8B2A9730e2Fc685184E}
+
+      - name: Setup new work dir
+        id: setup_new_work_dir
+        run: |
+          CLEAN_WORKFLOW_NAME=$(echo "${{ github.workflow }}" | tr -cs '[:alnum:]' '_')
+          CLEAN_JOB_NAME=$(echo "${{ github.job }}" | tr -cs '[:alnum:]' '_')
+          echo "NEW_WORK_DIR=./deploys/${CLEAN_WORKFLOW_NAME}/${CLEAN_JOB_NAME}" >> $GITHUB_ENV
+      - uses: actions/checkout@v4
+        with:
+          path: ${{ env.NEW_WORK_DIR }}
+
+      - name: private
+        run: git config --global url."https://${GITHUB_TOKEN}:x-oauth-basic@github.com/0xPellNetwork".insteadOf "https://github.com/0xPellNetwork"
+
+      - name: Build docker images
+        run: |
+          docker compose -p ${{ env.COMPOSE_PROJECT_NAME }} -f docker-compose.build.yml build pelldvs
+          docker compose -p ${{ env.COMPOSE_PROJECT_NAME }} -f docker-compose.build.yml build operator
+        working-directory: ${{ env.NEW_WORK_DIR }}/docker
+
+      - name: Shutdown services
+        run: |
+          docker compose -p ${{ env.COMPOSE_PROJECT_NAME }} -f docker-compose.dvs.yml down -v
+        working-directory: ${{ env.NEW_WORK_DIR }}/docker/devnet
+
+      - name: Start services - aggregator
+        run: |
+          rm -rf ./.env-dvs
+          echo "# dvs " >> ./.env-dvs
+          echo "ETH_RPC_URL=https://pevm.pell.dev" >> ./.env-dvs
+          echo "ETH_WS_URL=wss://pevm.pell.dev" >> ./.env-dvs
+          echo "REGISTRY_ROUTER_ADDRESS=${REGISTRY_ROUTER_ADDRESS}" >> ./.env-dvs
+          echo "SERVICE_CHAIN_RPC_URL=${SERVICE_CHAIN_RPC_URL}" >> ./.env-dvs
+          echo "SERVICE_CHAIN_WS_URL=${SERVICE_CHAIN_WS_URL}" >> ./.env-dvs
+          echo "AGGREGATOR_INDEXER_BATCH_SIZE=${AGGREGATOR_INDEXER_BATCH_SIZE}" >> ./.env-dvs
+          echo "NETWORK=${NETWORK}" >> ./.env-dvs
+          echo "CHAIN_ID=${CHAIN_ID}" >> ./.env-dvs
+          echo "GITHUB_TOKEN=${GITHUB_TOKEN}" >> ./.env-dvs
+          echo "" >> ./.env-dvs
+          docker compose -p ${{ env.COMPOSE_PROJECT_NAME }} -f docker-compose.dvs.yml --env-file ./.env-dvs up -d dvs
+        working-directory: ${{ env.NEW_WORK_DIR }}/docker/devnet
+        env:
+          AGGREGATOR_HOST_DEBUG_PORT: 13346
+          AGGREGATOR_HOST_SERVER_PORT: ${{ env.AGGREGATOR_HOST_SERVER_PORT }}
+          HOST_PELLDVS_HOME: /home/ubuntu/.pelldvs-homes/pelldvs-example-testnet/dvs
+
+      - name: Start services - task gateway
+        run: |
+          rm -f ./.env-gateway
+          echo "# gateway " >> ./.env-gateway
+          echo "ETH_RPC_URL=${SERVICE_CHAIN_RPC_URL}" >> ./.env-gateway
+          echo "ETH_WS_URL=${SERVICE_CHAIN_WS_URL}" >> ./.env-gateway
+          echo "SERVICE_CHAIN_RPC_URL=${SERVICE_CHAIN_RPC_URL}" >> ./.env-gateway
+          echo "SERVICE_CHAIN_WS_URL=${SERVICE_CHAIN_WS_URL}" >> ./.env-gateway
+          echo "NETWORK=${NETWORK}" >> ./.env-gateway
+          echo "CHAIN_ID=${CHAIN_ID}" >> ./.env-gateway
+          echo "GITHUB_TOKEN=${GITHUB_TOKEN}" >> ./.env-gateway
+          echo "GATEWAY_KEY=${GATEWAY_KEY}" >> ./.env-gateway
+          echo "" >> ./.env-gateway
+          docker compose -p ${{ env.COMPOSE_PROJECT_NAME }} -f docker-compose.dvs.yml --env-file ./.env-gateway up -d gateway
+        working-directory: ${{ env.NEW_WORK_DIR }}/docker/devnet
+        env:
+          GATEWAY_HOST_DEBUG_PORT: 13347
+          GATEWAY_HOST_SERVER_PORT: ${{ env.GATEWAY_HOST_SERVER_PORT }}
+          GATEWAY_KEY: ${{ secrets.GATEWAY_KEY }}
+          HOST_PELLDVS_HOME: /home/ubuntu/.pelldvs-homes/pelldvs-example-testnet/gateway
+
+      - name: sleep 60 seconds
+        run: sleep 60
+
+      - name: Check docker service status
+        run: docker compose -p ${{ env.COMPOSE_PROJECT_NAME }} -f docker-compose.dvs.yml ps -a
+        working-directory: ${{ env.NEW_WORK_DIR }}/docker/devnet
+
+      - name: Test services
+        run: |
+          nc -vz 127.0.0.1 $AGGREGATOR_HOST_SERVER_PORT
+          nc -vz 127.0.0.1 $GATEWAY_HOST_SERVER_PORT
+        working-directory: ${{ env.NEW_WORK_DIR }}/docker/devnet

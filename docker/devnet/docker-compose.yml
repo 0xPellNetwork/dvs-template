@@ -1,0 +1,60 @@
+name: squaring
+
+services:
+  operator01:
+    image: pelldvs-example-testnet-operator:latest
+    environment:
+      - ETH_RPC_URL=${ETH_RPC_URL}
+      - ETH_WS_URL=${ETH_WS_URL}
+      - NETWORK=${NETWORK}
+      - CHAIN_ID=${CHAIN_ID}
+      - OPERATOR_KEY=${OPERATOR_KEY}
+      - OPERATOR_BLS_KEY=${OPERATOR_BLS_KEY}
+      - SERVICE_CHAIN_WS_URL=${SERVICE_CHAIN_WS_URL}
+      - GATEWAY_ADDR=${GATEWAY_ADDR:-gateway:8949}
+      - REGISTRY_ROUTER_ADDRESS=${REGISTRY_ROUTER_ADDRESS}
+      - OPERATOR_PUBLIC_URL=${OPERATOR_PUBLIC_URL}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+    ports:
+      - "${OPERATOR_HOST_DEBUG_PORT:-33346}:${DEBUG_PORT:-2345}"
+      - "${OPERATOR_HOST_PORT:-36657}:26657"
+    entrypoint: [ "bash", "/root/scripts/start_operator.sh" ]
+    volumes:
+      - "${HOST_OPERATOR_HOME:-./.operator01}:/root/.pelldvs"
+      - ./operator:/root/scripts
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
+  operator02:
+    image: pelldvs-example-testnet-operator:latest
+    environment:
+      - ETH_RPC_URL=${ETH_RPC_URL}
+      - ETH_WS_URL=${ETH_WS_URL}
+      - NETWORK=${NETWORK}
+      - CHAIN_ID=${CHAIN_ID}
+      - OPERATOR_KEY=${OPERATOR_KEY}
+      - OPERATOR_BLS_KEY=${OPERATOR_BLS_KEY}
+      - SERVICE_CHAIN_WS_URL=${SERVICE_CHAIN_WS_URL}
+      - GATEWAY_ADDR=${GATEWAY_ADDR:-gateway:8949}
+      - REGISTRY_ROUTER_ADDRESS=${REGISTRY_ROUTER_ADDRESS}
+      - OPERATOR_PUBLIC_URL=${OPERATOR_PUBLIC_URL}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+    ports:
+      - "${OPERATOR_HOST_DEBUG_PORT:-43346}:${DEBUG_PORT:-2345}"
+      - "${OPERATOR_HOST_PORT:-46657}:26657"
+    entrypoint: [ "bash", "/root/scripts/start_operator.sh" ]
+    volumes:
+      - "${HOST_OPERATOR_HOME:-./.operator02}:/root/.pelldvs"
+      - ./operator:/root/scripts
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
+
+networks:
+  default:
+    external: true
+    name: pelldvs-squaring-devnet

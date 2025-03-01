@@ -1,0 +1,57 @@
+# This file is auto-generated from Ignite. You can edit
+# the file content but do not change the file name or path.
+#
+# buf.gen.gogo.yaml
+#
+version: v1
+plugins:
+  - name: gocosmos
+    out: ./generate/cosmos
+    opt:
+      - plugins=grpc
+      - Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types
+      - Mcosmos/orm/v1/orm.proto=cosmossdk.io/orm
+  - name: grpc-gateway
+    out: ./generate/cosmos
+    opt:
+      - logtostderr=true
+      # - allow_colon_final_segments=true
+  - name: go-grpc
+    out: ./generate/go_grpc
+    opt:
+      - paths=source_relative
+      - require_unimplemented_servers=false
+      - Mcosmos/app/v1alpha1/module.proto=cosmossdk.io/api/cosmos/app/v1alpha1
+      - Mcosmos/base/v1beta1/coin.proto=github.com/cosmos/cosmos-sdk/types
+      - Mcosmos/msg/v1/msg.proto=cosmossdk.io/api/cosmos/msg/v1
+      - Mcosmos_proto/cosmos.proto=github.com/cosmos/cosmos-proto
+      - Mgogoproto/gogo.proto=github.com/gogo/protobuf/gogoproto
+      - Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types
+      - Mcosmos/orm/v1/orm.proto=cosmossdk.io/orm
+      - Mintellix/example/module/module.proto=example/x/example/types
+      - Mintellix/example/params.proto=example/x/example/types
+      - Mintellix/squared/params.proto=example/x/squared/types
+      - Mintellix/squared/tx.proto=example/x/squared/types
+      - Mintellix/squared/module/module.proto=example/x/squared/types
+      - Mintellix/processor/params.proto=example/x/processor/types
+      - Mintellix/processor/tx.proto=example/x/processor/types
+      - Mintellix/processor/module/module.proto=example/x/processor/types
+  - name: go-pulsar
+    out: ./generate/go_grpc
+    opt:
+      - paths=source_relative
+      - Mcosmos/app/v1alpha1/module.proto=cosmossdk.io/api/cosmos/app/v1alpha1
+      - Mcosmos/base/v1beta1/coin.proto=github.com/cosmos/cosmos-sdk/types
+      - Mcosmos/msg/v1/msg.proto=cosmossdk.io/api/cosmos/msg/v1
+      - Mcosmos_proto/cosmos.proto=github.com/cosmos/cosmos-proto
+      - Mgogoproto/gogo.proto=github.com/gogo/protobuf/gogoproto
+      - Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types
+      - Mcosmos/orm/v1/orm.proto=cosmossdk.io/orm
+      - Mintellix/example/module/module.proto=example/x/example/types
+      - Mintellix/example/params.proto=example/x/example/types
+      - Mintellix/squared/params.proto=example/x/squared/types
+      - Mintellix/squared/tx.proto=example/x/squared/types
+      - Mintellix/squared/module/module.proto=example/x/squared/types
+      - Mintellix/processor/params.proto=example/x/processor/types
+      - Mintellix/processor/tx.proto=example/x/processor/types
+      - Mintellix/processor/module/module.proto=example/x/processor/types

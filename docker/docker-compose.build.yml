@@ -1,0 +1,32 @@
+name: pelldvs-squaring
+
+services:
+  hardhat:
+    build:
+      context: ./
+      dockerfile: ./contracts/Dockerfile
+      args:
+        - HTTP_PROXY=$HTTP_PROXY
+        - HTTPS_PROXY=$HTTPS_PROXY
+        - GITHUB_TOKEN=$GITHUB_TOKEN
+        - CONTRACT_VERSION=v0.1.2
+
+  pelldvs:
+    build:
+      context: ./
+      dockerfile: ./pelldvs/Dockerfile
+      args:
+        - HTTP_PROXY=$HTTP_PROXY
+        - HTTPS_PROXY=$HTTPS_PROXY
+        - GITHUB_TOKEN=$GITHUB_TOKEN
+        - PELLDVS_VERSION=v0.2.1
+        - EMULATOR_VERSION=${EMULATOR_VERSION:-v0.1.1}
+  operator:
+    build:
+      context: ../
+      dockerfile: ./docker/operator/Dockerfile
+      args:
+        - HTTP_PROXY=$HTTP_PROXY
+        - HTTPS_PROXY=$HTTPS_PROXY
+        - GITHUB_TOKEN=$GITHUB_TOKEN
+        - PELLDVS_VERSION=${PELLDVS_VERSION:-v0.2.1}

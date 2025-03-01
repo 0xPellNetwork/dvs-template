@@ -1,4 +1,4 @@
-# Squaring Example Setup and Usage Guide
+# dvs-template Setup and Usage Guide
 
 ## 1. Build the Docker image
 
@@ -57,4 +57,5 @@ test-1  | + '[' 4 '!=' 4 ']'
 test-1  | + echo '[PASS] Expected 4 to be equal to 4'
 test-1  | [PASS] Expected 4 to be equal to 4
 ```
+
 # dvs-template

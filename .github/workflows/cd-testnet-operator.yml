@@ -1,0 +1,129 @@
+name: cd-testnet-operator
+# Runs the CI end-to-end test network on all pushes to v0.38.x
+# and every pull request, but only if any Go files have been changed.
+on:
+  workflow_dispatch: # allow running workflow manually
+  pull_request:
+    branches:
+      - feat/docker-devnet
+    paths:
+      - '.github/workflows/cd-testnet-operator.yml'
+      - 'docker/devnet/operator/*.sh'
+      - 'docker/devnet/docker-compose.yml'
+  push:
+    branches:
+      - feat/docker-devnet
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+    paths:
+      - '.github/workflows/cd-testnet-operator.yml'
+      - 'docker/devnet/operator/*.sh'
+      - 'docker/devnet/docker-compose.yml'
+jobs:
+  deploy-staging:
+    runs-on: [ "self-hosted", "Linux", "X64", "ci", "dvs" ]
+    timeout-minutes: 30
+    env:
+      TAG: ${{ github.event.pull_request.head.sha || github.workflow_sha }}
+      COMPOSE_PROJECT_NAME: pelldvs-example-testnet
+      GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      ETH_RPC_URL: https://pevm.pell.dev
+      SERVICE_CHAIN_RPC_URL: ${{ secrets.SERVICE_CHAIN_RPC_URL }}
+      SERVICE_CHAIN_WS_URL: ${{ secrets.SERVICE_CHAIN_WS_URL }}
+      CHAIN_ID: ${{ vars.SERVICE_CHAIN_ID }}
+      NETWORK: ${{ vars.NETWORK }}
+      REGISTRY_ROUTER_ADDRESS: ${{ vars.REGISTRY_ROUTER_ADDRESS }}
+    steps:
+      - name: overwrite env
+        run: |
+          export REGISTRY_ROUTER_ADDRESS=${REGISTRY_ROUTER_ADDRESS:-0xADa1D988dCd97f5B0eF7578573338d124366fA05}
+
+      - name: trigger deploy
+        run: |
+          echo "trigger deploy by update this file"
+
+      - name: Setup new work dir
+        id: setup_new_work_dir
+        run: |
+          CLEAN_WORKFLOW_NAME=$(echo "${{ github.workflow }}" | tr -cs '[:alnum:]' '_')
+          CLEAN_JOB_NAME=$(echo "${{ github.job }}" | tr -cs '[:alnum:]' '_')
+          echo "NEW_WORK_DIR=./deploys/${CLEAN_WORKFLOW_NAME}/${CLEAN_JOB_NAME}" >> $GITHUB_ENV
+
+      - uses: actions/checkout@v4
+        with:
+          path: ${{ env.NEW_WORK_DIR }}
+
+      - name: private
+        run: git config --global url."https://${GITHUB_TOKEN}:x-oauth-basic@github.com/0xPellNetwork".insteadOf "https://github.com/0xPellNetwork"
+
+      - name: Build docker images
+        run: |
+          docker compose -p ${{ env.COMPOSE_PROJECT_NAME }} -f docker-compose.build.yml build operator
+        working-directory: ${{ env.NEW_WORK_DIR }}/docker
+
+      - name: Shutdown services
+        run: |
+          docker compose -p ${{ env.COMPOSE_PROJECT_NAME }} -f docker-compose.yml down
+        working-directory: ${{ env.NEW_WORK_DIR }}/docker/devnet
+
+      - name: remove operator 01 keys
+        run: |
+          sudo rm -rf /home/ubuntu/.pelldvs-homes/pelldvs-example-testnet/operator01/keys/operator*
+        working-directory: ${{ env.NEW_WORK_DIR }}/docker/devnet
+      - name: Start services - operator01
+        run: |
+          rm -rf ./.env-operator01
+          echo "# operator01 " >> ./.env-operator01
+          echo "OPERATOR_KEY=${{ secrets.OPERATOR_KEY_01 }}" >> ./.env-operator01
+          echo "OPERATOR_BLS_KEY=${{ secrets.OPERATOR_BLS_KEY_01 }}" >> ./.env-operator01
+          echo "OPERATOR_NODE_NAME=${OPERATOR_NODE_NAME}" >> ./.env-operator01
+          echo "OPERATOR_PUBLIC_URL=${OPERATOR_NODE_NAME}:${OPERATOR_HOST_PORT}" >> ./.env-operator01
+          echo "SERVICE_CHAIN_RPC_URL=${SERVICE_CHAIN_RPC_URL}" >> ./.env-operator01
+          echo "SERVICE_CHAIN_WS_URL=${SERVICE_CHAIN_WS_URL}" >> ./.env-operator01
+          echo "REGISTRY_ROUTER_ADDRESS=${REGISTRY_ROUTER_ADDRESS}" >> ./.env-operator01
+          echo "ETH_RPC_URL=${ETH_RPC_URL}" >> ./.env-operator01
+          echo "NETWORK=${NETWORK}" >> ./.env-operator01
+          echo "CHAIN_ID=${CHAIN_ID}" >> ./.env-operator01
+          echo "" >> ./.env-operator01
+          docker compose -p ${{ env.COMPOSE_PROJECT_NAME }} -f docker-compose.yml up -d operator01
+        working-directory: ${{ env.NEW_WORK_DIR }}/docker/devnet
+        env:
+          OPERATOR_NODE_NAME: operator01
+          OPERATOR_HOST_DEBUG_PORT: 33346
+          OPERATOR_HOST_PORT: 36657
+          OPERATOR_KEY: ${{ secrets.OPERATOR_KEY_01 }}
+          OPERATOR_BLS_KEY: ${{ secrets.OPERATOR_BLS_KEY_01 }}
+          OPERATOR_PUBLIC_URL: "$OPERATOR_NODE_NAME:$OPERATOR_HOST_PORT"
+          ETH_RPC_URL: https://pevm.pell.dev
+          HOST_OPERATOR_HOME: /home/ubuntu/.pelldvs-homes/pelldvs-example-testnet/operator01
+
+      - name: remove operator 02 keys
+        run: |
+          sudo rm -rf /home/ubuntu/.pelldvs-homes/pelldvs-example-testnet/operator02/keys/operator*
+        working-directory: ${{ env.NEW_WORK_DIR }}/docker/devnet
+      - name: Start services - operator02
+        run: |
+          rm -rf ./.env-operator02
+          echo "# operator02 " >> ./.env-operator02
+          echo "OPERATOR_KEY=${{ secrets.OPERATOR_KEY_02 }}" >> ./.env-operator02
+          echo "OPERATOR_BLS_KEY=${{ secrets.OPERATOR_BLS_KEY_02 }}" >> ./.env-operator02
+          echo "OPERATOR_NODE_NAME=${OPERATOR_NODE_NAME}" >> ./.env-operator02
+          echo "OPERATOR_PUBLIC_URL=${OPERATOR_NODE_NAME}:${OPERATOR_HOST_PORT}" >> ./.env-operator02
+          echo "SERVICE_CHAIN_RPC_URL=${SERVICE_CHAIN_RPC_URL}" >> ./.env-operator02
+          echo "SERVICE_CHAIN_WS_URL=${SERVICE_CHAIN_WS_URL}" >> ./.env-operator02
+          echo "REGISTRY_ROUTER_ADDRESS=${REGISTRY_ROUTER_ADDRESS}" >> ./.env-operator02
+          echo "ETH_RPC_URL=${ETH_RPC_URL}" >> ./.env-operator02
+          echo "NETWORK=${NETWORK}" >> ./.env-operator02
+          echo "CHAIN_ID=${CHAIN_ID}" >> ./.env-operator02
+          echo "" >> ./.env-operator02
+          docker compose -p ${{ env.COMPOSE_PROJECT_NAME }} -f docker-compose.yml up -d operator02
+        working-directory: ${{ env.NEW_WORK_DIR }}/docker/devnet
+        env:
+          OPERATOR_NODE_NAME: operator02
+          OPERATOR_HOST_DEBUG_PORT: 43346
+          OPERATOR_HOST_PORT: 46657
+          OPERATOR_KEY: ${{ secrets.OPERATOR_KEY_02 }}
+          OPERATOR_BLS_KEY: ${{ secrets.OPERATOR_BLS_KEY_02 }}
+          OPERATOR_PUBLIC_URL: "$OPERATOR_NODE_NAME:$OPERATOR_HOST_PORT"
+          ETH_RPC_URL: https://pevm.pell.dev
+          HOST_OPERATOR_HOME: /home/ubuntu/.pelldvs-homes/pelldvs-example-testnet/operator02

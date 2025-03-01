@@ -1,0 +1,17 @@
+name: Monitor and Restart Services
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  monitor_and_restart:
+    runs-on: [ "self-hosted", "Linux", "X64", "ci" ]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Monitor and Restart Services
+        run: bash docker/scripts/monitor-operator.sh

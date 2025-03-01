@@ -1,0 +1,36 @@
+name: Test
+on:
+  pull_request:
+  push:
+    paths:
+      - "**.go"
+    branches:
+      - dev
+jobs:
+  tests:
+    runs-on: ["self-hosted", "Linux", "X64", "ci"]
+    env:
+      GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      TAG: ${{ github.event.pull_request.head.sha || github.workflow_sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: technote-space/get-diff-action@v6
+        with:
+          PATTERNS: |
+            **/**.go
+            "!test/"
+            go.mod
+            go.sum
+            Makefile
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+          cache: false
+        if: env.GIT_DIFF
+      - name: private
+        run: git config --global url."https://${GITHUB_TOKEN}:x-oauth-basic@github.com/0xPellNetwork".insteadOf "https://github.com/0xPellNetwork"
+        if: env.GIT_DIFF
+      - name: Run Go Tests
+        run: |
+          go test ./...
+        if: env.GIT_DIFF
