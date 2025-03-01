@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	dvsconfig "github.com/0xPellNetwork/pelldvs/config"
-
 	"github.com/0xPellNetwork/pelldvs-libs/log"
+	dvsconfig "github.com/0xPellNetwork/pelldvs/config"
 	"github.com/0xPellNetwork/pelldvs/libs/cli"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
