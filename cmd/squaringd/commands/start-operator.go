@@ -48,7 +48,7 @@ func runOperator(cmd *cobra.Command) error {
 
 	node := app.NewApp(codectypes.NewInterfaceRegistry(), logger, config, squaringConfig.GatewayRPCClientURL)
 
-	td := NewTaskDispatcher(pkglogger.NewDVSLogAdapter(serverCtx.Logger).With("module", "task-dispacther"), node.DVSClient, fmt.Sprintf("%s/%s", config.RootDir, "config/chain.detail.json"), squaringConfig.ChainServiceManagerAddress)
+	td := NewTaskDispatcher(pkglogger.NewDVSLogAdapter(serverCtx.Logger).With("module", "task-dispacther"), node.DvsNode.GetLocalClient(), fmt.Sprintf("%s/%s", config.RootDir, "config/chain.detail.json"), squaringConfig.ChainServiceManagerAddress)
 	if err = td.Start(); err != nil {
 		logger.Error("Failed to start task dispatcher", "error", err)
 		return fmt.Errorf("failed to start TaskDispatcher: %w", err)

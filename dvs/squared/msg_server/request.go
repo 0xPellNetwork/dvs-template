@@ -1,4 +1,4 @@
-package server
+package msg_server
 
 import (
 	"context"

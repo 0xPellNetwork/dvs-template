@@ -1,4 +1,4 @@
-package server
+package msg_server
 
 import (
 	"fmt"
@@ -21,14 +21,14 @@ type Server struct {
 // NewServer creates a new Server instance with the provided logger and gateway RPC client URL.
 func NewServer(
 	logger log.Logger, // Logger for the server.
-	gatewayRPCClientURL string, // URL for the gateway RPC client.
+	connectorURL string, // URL for the chain connnector RPC client.
 ) (Server, error) {
 	k := Server{
 		logger: logger, // Initialize the server with the provided logger.
 	}
 	var err error
 	// Create a new chain connector client using the provided URL.
-	k.tg, err = chainConnector.NewClient(gatewayRPCClientURL)
+	k.tg, err = chainConnector.NewClient(connectorURL)
 	if err != nil {
 		// Log an error message if the client creation fails.
 		logger.Error("Failed to create Chain Connector client", "error", err)
