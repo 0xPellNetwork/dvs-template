@@ -11,7 +11,6 @@ import (
 	"github.com/0xPellNetwork/pelldvs/crypto/bls"
 
 	"github.com/0xPellNetwork/dvs-template/dvs/squared/types"
-	"github.com/0xPellNetwork/dvs-template/tools"
 )
 
 type ResponseServer struct {
@@ -66,7 +65,10 @@ func (d ResponseServer) ResponseNumberSquared(ctx context.Context, in *types.Req
 	for _, apk := range validatedData.QuorumApksG1 {
 		tapk := bls.NewZeroG1Point()
 		_ = tapk.Unmarshal(apk)
-		quorumApksG1 = append(quorumApksG1, tools.ConvertToBN254G1Point(tapk))
+		quorumApksG1 = append(quorumApksG1, csquaringManager.BN254G1Point{
+			X: tapk.X.BigInt(big.NewInt(0)),
+			Y: tapk.Y.BigInt(big.NewInt(0)),
+		})
 	}
 
 	signersAggSigG1 := csquaringManager.BN254G1Point{
