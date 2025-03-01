@@ -3,10 +3,10 @@ package server
 import (
 	"fmt"
 
-	"cosmossdk.io/x/circuit/types"
 	"github.com/0xPellNetwork/pelldvs-libs/log"
 
 	chainConnector "github.com/0xPellNetwork/dvs-template/chain_connector"
+	"github.com/0xPellNetwork/dvs-template/dvs/squared/types"
 )
 
 // Server struct represents the server with a logger and a chain connector client.

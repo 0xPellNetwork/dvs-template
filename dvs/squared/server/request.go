@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"cosmossdk.io/math"
+
 	"github.com/0xPellNetwork/dvs-template/dvs/squared/types"
 )
 
