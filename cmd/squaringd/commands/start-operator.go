@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"math/big"
 	"os"
+
 	"cosmossdk.io/math"
 	csquaringManager "github.com/0xPellNetwork/dvs-contracts-template/bindings/IncredibleSquaringServiceManager"
 	"github.com/0xPellNetwork/pellapp-sdk/dvs_msg_handler/tx"
 	pkglogger "github.com/0xPellNetwork/pellapp-sdk/logger"
+	interactorconfig "github.com/0xPellNetwork/pelldvs-interactor/config"
 	dvslog "github.com/0xPellNetwork/pelldvs-libs/log"
 	rpclocal "github.com/0xPellNetwork/pelldvs/rpc/client/local"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -19,8 +21,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/spf13/cobra"
-
-	interactorconfig "github.com/0xPellNetwork/pelldvs-interactor/config"
 
 	"github.com/0xPellNetwork/dvs-template/app"
 	"github.com/0xPellNetwork/dvs-template/dvs/squared/types"
