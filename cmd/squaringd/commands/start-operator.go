@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"math/big"
 	"os"
-	"strconv"
-
 	"cosmossdk.io/math"
 	csquaringManager "github.com/0xPellNetwork/dvs-contracts-template/bindings/IncredibleSquaringServiceManager"
 	"github.com/0xPellNetwork/pellapp-sdk/dvs_msg_handler/tx"
@@ -21,6 +19,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/spf13/cobra"
+
+	interactorconfig "github.com/0xPellNetwork/pelldvs-interactor/config"
 
 	"github.com/0xPellNetwork/dvs-template/app"
 	"github.com/0xPellNetwork/dvs-template/dvs/squared/types"
@@ -48,7 +48,12 @@ func runOperator(cmd *cobra.Command) error {
 
 	node := app.NewApp(codectypes.NewInterfaceRegistry(), logger, config, squaringConfig.GatewayRPCClientURL)
 
-	td := NewTaskDispatcher(pkglogger.NewDVSLogAdapter(serverCtx.Logger).With("module", "task-dispacther"), node.DVSClient, fmt.Sprintf("%s/%s", config.RootDir, "config/chain.detail.json"), squaringConfig.ChainServiceManagerAddress)
+	td := NewTaskDispatcher(
+		pkglogger.NewDVSLogAdapter(serverCtx.Logger).With("module", "task-dispacther"),
+		node.DVSClient,
+		config.Pell.InteractorConfigPath,
+		squaringConfig.ChainServiceManagerAddress,
+	)
 	if err = td.Start(); err != nil {
 		logger.Error("Failed to start task dispatcher", "error", err)
 		return fmt.Errorf("failed to start TaskDispatcher: %w", err)
@@ -84,28 +89,24 @@ type TaskDispatcher struct {
 }
 
 // NewTaskDispatcher creates a new task dispatcher
-func NewTaskDispatcher(logger dvslog.Logger, pellDVSClient *rpclocal.Local, chainsConfigPath string, chainServiceManagerAddress map[int64]string) *TaskDispatcher {
-	// Read chain.detail.json config
-	chainDetails := make(map[string]struct {
-		RPCURL string `json:"rpc_url"`
-	})
+func NewTaskDispatcher(logger dvslog.Logger, pellDVSClient *rpclocal.Local, interacotrCfgPath string, chainServiceManagerAddress map[int64]string) *TaskDispatcher {
+	var interacotrConfig = interactorconfig.Config{}
 
-	configBytes, err := os.ReadFile(chainsConfigPath)
+	configBytes, err := os.ReadFile(interacotrCfgPath)
 	if err != nil {
 		logger.Error("Failed to read chain config", "error", err)
 		return nil
 	}
 
-	if err := json.Unmarshal(configBytes, &chainDetails); err != nil {
+	if err := json.Unmarshal(configBytes, &interacotrConfig); err != nil {
 		logger.Error("Failed to parse chain config", "error", err)
 		return nil
 	}
 
 	var chains []*ChainWatcher
 
-	for chainIDStr, detail := range chainDetails {
-		chainID, _ := strconv.ParseInt(chainIDStr, 10, 64)
-		serviceManagerAddr, has := chainServiceManagerAddress[chainID]
+	for chainID, detail := range interacotrConfig.ContractConfig.DVSConfigs {
+		serviceManagerAddr, has := chainServiceManagerAddress[int64(chainID)]
 		if !has {
 			logger.Error("Chain service manager address not found", "chainID", chainID)
 			continue
@@ -123,7 +124,7 @@ func NewTaskDispatcher(logger dvslog.Logger, pellDVSClient *rpclocal.Local, chai
 		}
 
 		chains = append(chains, &ChainWatcher{
-			chainID:        chainID,
+			chainID:        int64(chainID),
 			rpcURL:         detail.RPCURL,
 			serviceManager: serviceManager,
 			taskChan:       make(chan *csquaringManager.ContractIncredibleSquaringServiceManagerNewTaskCreated),
