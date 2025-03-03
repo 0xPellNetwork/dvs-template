@@ -71,7 +71,8 @@ function init_pelldvs_config {
     "dvs_configs": {
       "$CHAIN_ID": {
         "chain_id": $CHAIN_ID,
-        "rpc_url": "$SERVICE_CHAIN_WS_URL",
+        "rpc_url": "$SERVICE_CHAIN_RPC_URL",
+        "ws_url": "$SERVICE_CHAIN_WS_URL",
         "operator_info_provider": "$DVS_OPERATOR_INFO_PROVIDER",
         "operator_key_manager": "$DVS_OPERATOR_KEY_MANAGER",
         "central_scheduler": "$DVS_CENTRAL_SCHEDULER",

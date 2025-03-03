@@ -76,6 +76,7 @@ func runOperator(cmd *cobra.Command) error {
 type ChainWatcher struct {
 	chainID        int64
 	rpcURL         string
+	wsURL          string
 	serviceManager *csquaringManager.ContractIncredibleSquaringServiceManager
 	taskChan       chan *csquaringManager.ContractIncredibleSquaringServiceManagerNewTaskCreated
 }
@@ -111,13 +112,13 @@ func NewTaskDispatcher(logger dvslog.Logger, pellDVSClient *rpclocal.Local, inte
 			logger.Error("Chain service manager address not found", "chainID", chainID)
 			continue
 		}
-		ethClient, err := ethclient.Dial(detail.RPCURL)
+		wsCLient, err := ethclient.Dial(detail.WSURL)
 		if err != nil {
 			logger.Error("Failed to connect to Ethereum client", "error", err)
 			continue
 		}
 
-		serviceManager, err := csquaringManager.NewContractIncredibleSquaringServiceManager(common.HexToAddress(serviceManagerAddr), ethClient)
+		serviceManager, err := csquaringManager.NewContractIncredibleSquaringServiceManager(common.HexToAddress(serviceManagerAddr), wsCLient)
 		if err != nil {
 			logger.Error("Failed to create contract filter", "error", err)
 			continue
@@ -126,6 +127,7 @@ func NewTaskDispatcher(logger dvslog.Logger, pellDVSClient *rpclocal.Local, inte
 		chains = append(chains, &ChainWatcher{
 			chainID:        int64(chainID),
 			rpcURL:         detail.RPCURL,
+			wsURL:          detail.WSURL,
 			serviceManager: serviceManager,
 			taskChan:       make(chan *csquaringManager.ContractIncredibleSquaringServiceManagerNewTaskCreated),
 		})
@@ -153,6 +155,7 @@ func (td *TaskDispatcher) listenForNewTasks(chain *ChainWatcher) {
 		"chainID", chain.chainID,
 		"serviceManager", chain.serviceManager,
 		"rpcURL", chain.rpcURL,
+		"wsURL", chain.wsURL,
 	)
 	filterOpts := &bind.WatchOpts{}
 

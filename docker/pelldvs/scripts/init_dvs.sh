@@ -61,20 +61,20 @@ function update_pelldvs_config {
     "indexer_start_height": $AGGREGATOR_INDEXER_START_HEIGHT,
     "indexer_batch_size": $AGGREGATOR_INDEXER_BATCH_SIZE,
     "contract_config": {
-			"pell_registry_router_factory": "$REGISTRY_ROUTER_FACTORY_ADDRESS",
-    	"pell_dvs_directory": "$PELL_DVS_DIRECTORY",
-    	"pell_delegation_manager": "$PELL_DELEGATION_MNAGER",
-    	"pell_registry_router": "$REGISTRY_ROUTER_ADDRESS",
-			"dvs_configs": {
-				"$CHAIN_ID": {
-					"chain_id": $CHAIN_ID,
-					"rpc_url": "$SERVICE_CHAIN_RPC_URL",
-					"operator_info_provider": "$DVS_OPERATOR_INFO_PROVIDER",
-					"operator_key_manager": "$DVS_OPERATOR_KEY_MANAGER",
-					"central_scheduler": "$DVS_CENTRAL_SCHEDULER",
-					"operator_index_manager": "$DVS_OPERATOR_INDEX_MANAGER"
-				}
-			}
+      "pell_registry_router_factory": "$REGISTRY_ROUTER_FACTORY_ADDRESS",
+      "pell_dvs_directory": "$PELL_DVS_DIRECTORY",
+      "pell_delegation_manager": "$PELL_DELEGATION_MNAGER",
+      "pell_registry_router": "$REGISTRY_ROUTER_ADDRESS",
+      "dvs_configs": {
+        "$CHAIN_ID": {
+          "chain_id": $CHAIN_ID,
+          "rpc_url": "$SERVICE_CHAIN_RPC_URL",
+          "operator_info_provider": "$DVS_OPERATOR_INFO_PROVIDER",
+          "operator_key_manager": "$DVS_OPERATOR_KEY_MANAGER",
+          "central_scheduler": "$DVS_CENTRAL_SCHEDULER",
+          "operator_index_manager": "$DVS_OPERATOR_INDEX_MANAGER"
+        }
+      }
     }
 }
 EOF

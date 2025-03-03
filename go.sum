@@ -39,6 +39,8 @@ github.com/0xPellNetwork/pelldvs-interactor v0.0.9 h1:Wp6uir7wXJKK+mSy2/LOfAE63a
 github.com/0xPellNetwork/pelldvs-interactor v0.0.9/go.mod h1:kHbDu0iVhdwF38ZVDB2Fnsg87+gj74wAnaKz+wPwb/w=
 github.com/0xPellNetwork/pelldvs-interactor v0.0.10 h1:+cCl7fPBTN9wP8KGUfM5a98S1Umh109LXWxbuBC8WJ8=
 github.com/0xPellNetwork/pelldvs-interactor v0.0.10/go.mod h1:kHbDu0iVhdwF38ZVDB2Fnsg87+gj74wAnaKz+wPwb/w=
+github.com/0xPellNetwork/pelldvs-interactor v0.0.11 h1:A0AfzswoninynMZaSqDcJgeKf01s/9GZC9vO6BVgUIY=
+github.com/0xPellNetwork/pelldvs-interactor v0.0.11/go.mod h1:kHbDu0iVhdwF38ZVDB2Fnsg87+gj74wAnaKz+wPwb/w=
 github.com/0xPellNetwork/pelldvs-libs v0.2.0 h1:fNyzJKhH5Iux1YVPddLVwR/txPkbkRvE5+VunS7tFeg=
 github.com/0xPellNetwork/pelldvs-libs v0.2.0/go.mod h1:mU9ltThnyjDpKZHnOuJvMqbQU1O99P4cOAecTUKDAIY=
 github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 h1:/vQbFIOMbk2FiG/kXiLl8BRyzTWDw7gX/Hz7Dd5eDMs=
