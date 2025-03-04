@@ -9,6 +9,8 @@ import (
 	"github.com/0xPellNetwork/dvs-template/dvs/squared/types"
 )
 
+var _ types.SquaredMsgServerServer = Server{}
+
 // Server struct represents the server with a logger and a chain connector client.
 type Server struct {
 	logger log.Logger // Logger for logging messages.

@@ -24,7 +24,7 @@ func NewAppModule(s server.Server) AppModule {
 // RegisterServices registers module services.
 func (am AppModule) RegisterServices(rootServer grpc1.Server) {
 	// register dvs-msg handler server
-	types.RegisterDVSRequestServer(rootServer, am.server)
+	types.RegisterSquaredMsgServerServer(rootServer, am.server)
 
 	// register dvs-msg result handler
 	if r, ok := rootServer.(*dsm.Processor); ok {

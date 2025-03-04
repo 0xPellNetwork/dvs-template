@@ -9,8 +9,6 @@ import (
 	"github.com/0xPellNetwork/dvs-template/dvs/squared/types"
 )
 
-var _ types.DVSRequestServer = Server{}
-
 func (s Server) RequestNumberSquared(ctx context.Context, request *types.RequestNumberSquaredIn) (*types.RequestNumberSquaredOut, error) {
 	numInt := request.Task.Squared.Int64()
 	s.logger.Info("ProcessRequestNumberSquared", "Number", fmt.Sprintf("%+v", numInt))

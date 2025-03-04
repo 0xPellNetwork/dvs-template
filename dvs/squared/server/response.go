@@ -13,8 +13,6 @@ import (
 	"github.com/0xPellNetwork/dvs-template/dvs/squared/types"
 )
 
-var _ types.DVSResponseServer = Server{}
-
 func (s Server) ResponseNumberSquared(ctx context.Context, in *types.RequestNumberSquaredIn) (*types.ResponseNumberSquaredOut, error) {
 	pkgCtx := sdktypes.UnwrapContext(ctx)
 

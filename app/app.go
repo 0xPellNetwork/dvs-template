@@ -97,6 +97,7 @@ func NewApp(
 
 	// Register DVS services
 	sq.NewAppModule(app.DvsServer).RegisterServices(handler.GetProcessor())
+
 	sqtypes.RegisterInterfaces(app.interfaceRegistry)
 
 	return app
