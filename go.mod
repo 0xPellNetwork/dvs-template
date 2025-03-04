@@ -8,8 +8,8 @@ require (
 	cosmossdk.io/x/circuit v0.1.1
 	github.com/0xPellNetwork/dvs-contracts-template v0.1.0
 	github.com/0xPellNetwork/pellapp-sdk v0.1.2
-	github.com/0xPellNetwork/pelldvs v0.2.1
-	github.com/0xPellNetwork/pelldvs-interactor v0.0.9
+	github.com/0xPellNetwork/pelldvs v0.2.2
+	github.com/0xPellNetwork/pelldvs-interactor v0.0.11
 	github.com/0xPellNetwork/pelldvs-libs v0.2.0
 	github.com/cometbft/cometbft v0.38.12 // indirect
 	github.com/cosmos/cosmos-proto v1.0.0-beta.5
