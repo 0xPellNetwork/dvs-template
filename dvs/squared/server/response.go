@@ -13,17 +13,9 @@ import (
 	"github.com/0xPellNetwork/dvs-template/dvs/squared/types"
 )
 
-type ResponseServer struct {
-	Server
-}
+var _ types.DVSResponseServer = Server{}
 
-func NewResponseServer(server Server) types.DVSResponseServer {
-	return &ResponseServer{Server: server}
-}
-
-var _ types.DVSResponseServer = ResponseServer{}
-
-func (d ResponseServer) ResponseNumberSquared(ctx context.Context, in *types.RequestNumberSquaredIn) (*types.ResponseNumberSquaredOut, error) {
+func (s Server) ResponseNumberSquared(ctx context.Context, in *types.RequestNumberSquaredIn) (*types.ResponseNumberSquaredOut, error) {
 	pkgCtx := sdktypes.UnwrapContext(ctx)
 
 	validatedData, err := pelldvs.GetDvsRequestValidatedData(pkgCtx)
@@ -103,9 +95,9 @@ func (d ResponseServer) ResponseNumberSquared(ctx context.Context, in *types.Req
 		NonSignerStakeIndices:       nonSignerStakeIndices,
 	}
 
-	err = d.tg.RespondToTask(uint64(pkgCtx.ChainID()), task, taskResponse, nonSignerStakesAndSignature)
+	err = s.tg.RespondToTask(uint64(pkgCtx.ChainID()), task, taskResponse, nonSignerStakesAndSignature)
 	if err != nil {
-		d.logger.Error("Failed to respond to task", "error", err)
+		s.logger.Error("Failed to respond to task", "error", err)
 		return nil, err
 	}
 

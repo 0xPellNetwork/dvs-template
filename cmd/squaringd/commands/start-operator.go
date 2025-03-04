@@ -7,12 +7,12 @@ import (
 	"math/big"
 	"os"
 
+	"cosmossdk.io/log"
 	"cosmossdk.io/math"
 	csquaringManager "github.com/0xPellNetwork/dvs-contracts-template/bindings/IncredibleSquaringServiceManager"
-	"github.com/0xPellNetwork/pellapp-sdk/dvs_msg_handler/tx"
-	pkglogger "github.com/0xPellNetwork/pellapp-sdk/logger"
+	"github.com/0xPellNetwork/pellapp-sdk/service/tx"
 	interactorconfig "github.com/0xPellNetwork/pelldvs-interactor/config"
-	dvslog "github.com/0xPellNetwork/pelldvs-libs/log"
+
 	rpclocal "github.com/0xPellNetwork/pelldvs/rpc/client/local"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -49,7 +49,7 @@ func runOperator(cmd *cobra.Command) error {
 	node := app.NewApp(codectypes.NewInterfaceRegistry(), logger, config, squaringConfig.GatewayRPCClientURL)
 
 	td, err := NewTaskDispatcher(
-		pkglogger.NewDVSLogAdapter(serverCtx.Logger).With("module", "task-dispacther"),
+		serverCtx.Logger,
 		node.DVSClient,
 		config.Pell.InteractorConfigPath,
 		squaringConfig.ChainServiceManagerAddress,
@@ -90,11 +90,11 @@ type TaskDispatcher struct {
 	chains        []*ChainWatcher
 	pellDVSClient *rpclocal.Local
 	msgEncoder    tx.MsgEncoder
-	logger        dvslog.Logger
+	logger        log.Logger
 }
 
 // NewTaskDispatcher creates a new task dispatcher
-func NewTaskDispatcher(logger dvslog.Logger, pellDVSClient *rpclocal.Local, interacotrCfgPath string, chainServiceManagerAddress map[int64]string) (*TaskDispatcher, error) {
+func NewTaskDispatcher(logger log.Logger, pellDVSClient *rpclocal.Local, interacotrCfgPath string, chainServiceManagerAddress map[int64]string) (*TaskDispatcher, error) {
 	var interacotrConfig = interactorconfig.Config{}
 
 	configBytes, err := os.ReadFile(interacotrCfgPath)

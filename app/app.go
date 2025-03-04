@@ -2,20 +2,20 @@ package app
 
 import (
 	"github.com/0xPellNetwork/pellapp-sdk/baseapp"
-	dvsservermanager "github.com/0xPellNetwork/pellapp-sdk/dvs_msg_handler"
 	"github.com/0xPellNetwork/pellapp-sdk/pelldvs"
+	dsm "github.com/0xPellNetwork/pellapp-sdk/service"
 	"github.com/0xPellNetwork/pelldvs-libs/log"
 	"github.com/0xPellNetwork/pelldvs/config"
+
 	rpclocal "github.com/0xPellNetwork/pelldvs/rpc/client/local"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/std"
 	sdktypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	grpc1 "github.com/cosmos/gogoproto/grpc"
 
-	dvs "github.com/0xPellNetwork/dvs-template/dvs/squared"
-	dvsserver "github.com/0xPellNetwork/dvs-template/dvs/squared/server"
-	dvstypes "github.com/0xPellNetwork/dvs-template/dvs/squared/types"
+	sq "github.com/0xPellNetwork/dvs-template/dvs/squared"
+	sqserver "github.com/0xPellNetwork/dvs-template/dvs/squared/server"
+	sqtypes "github.com/0xPellNetwork/dvs-template/dvs/squared/types"
 )
 
 const (
@@ -33,16 +33,11 @@ type App struct {
 	*baseapp.BaseApp
 
 	appCodec          codec.Codec
+	logger            log.Logger
 	interfaceRegistry codectypes.InterfaceRegistry
 
-	dvsNode *pelldvs.Node
-
-	DvsServer                dvsserver.Server
-	ProcessRequestServer     grpc1.Server
-	PostProcessRequestServer grpc1.Server
-
-	logger log.Logger
-
+	dvsNode   *pelldvs.Node
+	DvsServer sqserver.Server
 	DVSClient *rpclocal.Local
 }
 
@@ -67,11 +62,13 @@ func NewApp(
 	cmtcfg *config.Config,
 	gatewayRPCClientURL string,
 ) *App {
-	var app = &App{
-		BaseApp:           baseapp.NewBaseApp(logger),
+	cdc := codec.NewProtoCodec(interfaceRegistry)
+
+	app := &App{
+		BaseApp:           baseapp.NewBaseApp(Name, logger, cdc),
 		interfaceRegistry: interfaceRegistry,
 		logger:            logger,
-		appCodec:          codec.NewProtoCodec(interfaceRegistry),
+		appCodec:          cdc,
 	}
 
 	// Register standard types interfaces
@@ -90,17 +87,17 @@ func NewApp(
 	app.DVSClient = app.dvsNode.GetLocalClient()
 
 	// Initialize DVS server
-	app.DvsServer, err = dvsserver.NewServer(app.logger, gatewayRPCClientURL)
+	app.DvsServer, err = sqserver.NewServer(app.logger, gatewayRPCClientURL)
 	if err != nil {
 		panic(err)
 	}
 
 	// Initialize DVS server manager
-	dvsservermanager.InitDvsMsgHelper(app.appCodec)
+	handler := dsm.NewDvsMsgHandlers(app.appCodec)
 
 	// Register DVS services
-	dvs.NewAppModule(app.DvsServer).RegisterServices()
-	dvstypes.RegisterInterfaces(app.interfaceRegistry)
+	sq.NewAppModule(app.DvsServer).RegisterServices(handler.GetProcessor())
+	sqtypes.RegisterInterfaces(app.interfaceRegistry)
 
 	return app
 }

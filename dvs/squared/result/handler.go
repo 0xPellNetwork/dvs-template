@@ -11,8 +11,7 @@ import (
 
 // ResultHandler implements the result handler interface
 // for processing squared number service results
-type ResultHandler struct {
-}
+type ResultHandler struct{}
 
 // NewResultHandler creates a new instance of the result handler
 func NewResultHandler() *ResultHandler {

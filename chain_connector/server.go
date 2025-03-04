@@ -11,7 +11,8 @@ import (
 
 	csquaringManager "github.com/0xPellNetwork/dvs-contracts-template/bindings/IncredibleSquaringServiceManager"
 	"github.com/0xPellNetwork/pelldvs-interactor/chainlibs/eth"
-	"github.com/0xPellNetwork/pelldvs/libs/log"
+	"github.com/0xPellNetwork/pelldvs-libs/log"
+
 	"github.com/0xPellNetwork/pelldvs/libs/service"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
@@ -20,7 +21,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-var logger = log.NewTMLogger(log.NewSyncWriter(os.Stdout))
+var logger = log.NewLogger(os.Stdout)
 
 // Config configuration structure
 type Config struct {
