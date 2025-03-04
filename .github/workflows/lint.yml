@@ -16,7 +16,7 @@ on:
     paths:
       - "**.go"
     branches:
-      - dev
+      - main
 jobs:
   golangci:
     name: golangci-lint
