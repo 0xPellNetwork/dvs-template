@@ -7,7 +7,6 @@ import (
 	"github.com/0xPellNetwork/pelldvs-libs/log"
 	"github.com/0xPellNetwork/pelldvs/config"
 
-	rpclocal "github.com/0xPellNetwork/pelldvs/rpc/client/local"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/std"
@@ -36,15 +35,14 @@ type App struct {
 	logger            log.Logger
 	interfaceRegistry codectypes.InterfaceRegistry
 
-	dvsNode   *pelldvs.Node
+	DvsNode   *pelldvs.Node
 	DvsServer sqserver.Server
-	DVSClient *rpclocal.Local
 }
 
 // Start method starts the application
 func (app *App) Start() error {
 	app.logger.Info("App Start")
-	if err := app.dvsNode.Start(); err != nil {
+	if err := app.DvsNode.Start(); err != nil {
 		app.logger.Error("DvsNode Start Failed", "error", err.Error())
 		return err
 	}
@@ -59,8 +57,7 @@ func (app *App) Start() error {
 func NewApp(
 	interfaceRegistry codectypes.InterfaceRegistry,
 	logger log.Logger,
-	cmtcfg *config.Config,
-	gatewayRPCClientURL string,
+	cfg *config.Config,
 ) *App {
 	cdc := codec.NewProtoCodec(interfaceRegistry)
 
@@ -78,16 +75,13 @@ func NewApp(
 	var err error
 
 	// Build dvs node
-	app.dvsNode, err = pelldvs.NewNode(app.logger, app, cmtcfg)
+	app.DvsNode, err = pelldvs.NewNode(app.logger, app, cfg)
 	if err != nil {
 		panic(err)
 	}
 
-	// Initialize DVS client
-	app.DVSClient = app.dvsNode.GetLocalClient()
-
 	// Initialize DVS server
-	app.DvsServer, err = sqserver.NewServer(app.logger, gatewayRPCClientURL)
+	app.DvsServer, err = sqserver.NewServer(app.logger)
 	if err != nil {
 		panic(err)
 	}

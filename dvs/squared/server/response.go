@@ -10,8 +10,11 @@ import (
 	sdktypes "github.com/0xPellNetwork/pellapp-sdk/types"
 	"github.com/0xPellNetwork/pelldvs/crypto/bls"
 
+	chainConnector "github.com/0xPellNetwork/dvs-template/chain_connector"
 	"github.com/0xPellNetwork/dvs-template/dvs/squared/types"
 )
+
+var ChainConnector *chainConnector.Client
 
 func (s Server) ResponseNumberSquared(ctx context.Context, in *types.RequestNumberSquaredIn) (*types.ResponseNumberSquaredOut, error) {
 	pkgCtx := sdktypes.UnwrapContext(ctx)
@@ -93,7 +96,7 @@ func (s Server) ResponseNumberSquared(ctx context.Context, in *types.RequestNumb
 		NonSignerStakeIndices:       nonSignerStakeIndices,
 	}
 
-	err = s.tg.RespondToTask(uint64(pkgCtx.ChainID()), task, taskResponse, nonSignerStakesAndSignature)
+	err = ChainConnector.RespondToTask(uint64(pkgCtx.ChainID()), task, taskResponse, nonSignerStakesAndSignature)
 	if err != nil {
 		s.logger.Error("Failed to respond to task", "error", err)
 		return nil, err

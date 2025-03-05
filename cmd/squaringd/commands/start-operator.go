@@ -10,6 +10,8 @@ import (
 	"cosmossdk.io/log"
 	"cosmossdk.io/math"
 	csquaringManager "github.com/0xPellNetwork/dvs-contracts-template/bindings/IncredibleSquaringServiceManager"
+	chainConnector "github.com/0xPellNetwork/dvs-template/chain_connector"
+	sqserver "github.com/0xPellNetwork/dvs-template/dvs/squared/server"
 	"github.com/0xPellNetwork/pellapp-sdk/service/tx"
 	interactorconfig "github.com/0xPellNetwork/pelldvs-interactor/config"
 
@@ -46,11 +48,17 @@ func runOperator(cmd *cobra.Command) error {
 		return fmt.Errorf("failed to load squaring config: %w", err)
 	}
 
-	node := app.NewApp(codectypes.NewInterfaceRegistry(), logger, config, squaringConfig.GatewayRPCClientURL)
+	sqserver.ChainConnector, err = chainConnector.NewClient(squaringConfig.GatewayRPCClientURL)
+	if err != nil {
+		logger.Error("Failed to create Chain Connector client", "error", err)
+		return fmt.Errorf("failed to create Chain Connector client: %v", err)
+	}
+
+	node := app.NewApp(codectypes.NewInterfaceRegistry(), logger, config)
 
 	td, err := NewTaskDispatcher(
 		serverCtx.Logger,
-		node.DVSClient,
+		node.DvsNode.GetLocalClient(),
 		config.Pell.InteractorConfigPath,
 		squaringConfig.ChainServiceManagerAddress,
 	)
