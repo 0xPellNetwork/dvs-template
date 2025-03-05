@@ -3,7 +3,6 @@ package app
 import (
 	"github.com/0xPellNetwork/pellapp-sdk/baseapp"
 	"github.com/0xPellNetwork/pellapp-sdk/pelldvs"
-	dsm "github.com/0xPellNetwork/pellapp-sdk/service"
 	"github.com/0xPellNetwork/pelldvs-libs/log"
 	"github.com/0xPellNetwork/pelldvs/config"
 
@@ -13,8 +12,6 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	sq "github.com/0xPellNetwork/dvs-template/dvs/squared"
-	sqserver "github.com/0xPellNetwork/dvs-template/dvs/squared/server"
-	sqtypes "github.com/0xPellNetwork/dvs-template/dvs/squared/types"
 )
 
 const (
@@ -35,22 +32,7 @@ type App struct {
 	logger            log.Logger
 	interfaceRegistry codectypes.InterfaceRegistry
 
-	DvsNode   *pelldvs.Node
-	DvsServer sqserver.Server
-}
-
-// Start method starts the application
-func (app *App) Start() error {
-	app.logger.Info("App Start")
-	if err := app.DvsNode.Start(); err != nil {
-		app.logger.Error("DvsNode Start Failed", "error", err.Error())
-		return err
-	}
-
-	// Block the main thread
-	c := make(chan any)
-	<-c
-	return nil
+	DvsNode *pelldvs.Node
 }
 
 // NewApp initializes a new App instance
@@ -73,26 +55,30 @@ func NewApp(
 	sdktypes.RegisterInterfaces(app.interfaceRegistry)
 
 	var err error
-
 	// Build dvs node
 	app.DvsNode, err = pelldvs.NewNode(app.logger, app, cfg)
 	if err != nil {
 		panic(err)
 	}
 
-	// Initialize DVS server
-	app.DvsServer, err = sqserver.NewServer(app.logger)
-	if err != nil {
-		panic(err)
-	}
-
-	// Initialize DVS server manager
-	handler := dsm.NewDvsMsgHandlers(app.appCodec)
-
-	// Register DVS services
-	sq.NewAppModule(app.DvsServer).RegisterServices(handler.GetProcessor())
-
-	sqtypes.RegisterInterfaces(app.interfaceRegistry)
+	// Register DVS module services
+	sqModule := sq.NewAppModule(app.logger)
+	sqModule.RegisterServices(app.GetMsgRouter())
+	sqModule.RegisterInterfaces(app.interfaceRegistry)
 
 	return app
+}
+
+// Start method starts the application
+func (app *App) Start() error {
+	app.logger.Info("App Start")
+	if err := app.DvsNode.Start(); err != nil {
+		app.logger.Error("DvsNode Start Failed", "error", err.Error())
+		return err
+	}
+
+	// Block the main thread
+	c := make(chan any)
+	<-c
+	return nil
 }

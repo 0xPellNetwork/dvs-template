@@ -1,7 +1,6 @@
 package types
 
 import (
-	dvstypes "github.com/0xPellNetwork/pellapp-sdk/pelldvs/types"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
@@ -13,6 +12,5 @@ import (
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	msgservice.RegisterMsgServiceDesc(registry, &_SquaredMsgServer_serviceDesc)
 
-	registry.RegisterImplementations((*sdk.Msg)(nil), &dvstypes.RequestPostRequestValidatedData{})
 	registry.RegisterImplementations((*sdk.Msg)(nil), &RequestNumberSquaredIn{})
 }
