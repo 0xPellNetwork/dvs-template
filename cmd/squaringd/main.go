@@ -11,9 +11,7 @@ import (
 func main() {
 	rootCmd := commands.RootCmd
 	rootCmd.AddCommand(
-		commands.StartTaskGatewayCmd,
 		commands.StartOperatorCmd,
-		commands.StartAggregatorCmd,
 	)
 	cmd := cli.PrepareBaseCmd(rootCmd, "", os.ExpandEnv("$HOME"))
 	if err := cmd.Execute(); err != nil {

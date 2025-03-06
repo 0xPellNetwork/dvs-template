@@ -1,9 +1,7 @@
 package result
 
 import (
-	csquaringManager "github.com/0xPellNetwork/dvs-contracts-template/bindings/IncredibleSquaringServiceManager"
 	"github.com/cosmos/gogoproto/proto"
-	"github.com/ethereum/go-ethereum/accounts/abi"
 	"golang.org/x/crypto/sha3"
 
 	"github.com/0xPellNetwork/dvs-template/dvs/squared/types"
@@ -24,6 +22,7 @@ func (p *ResultHandler) GetData(msg proto.Message) ([]byte, error) {
 	if !ok {
 		return nil, nil
 	}
+
 	return []byte(r.Squared.String()), nil
 }
 
@@ -34,50 +33,9 @@ func (p *ResultHandler) GetDigest(msg proto.Message) ([]byte, error) {
 		return nil, nil
 	}
 
-	// Construct the task response structure
-	taskResponse := &csquaringManager.IIncredibleSquaringServiceManagerTaskResponse{
-		ReferenceTaskIndex: r.TaskIndex,
-		NumberSquared:      r.Squared.BigInt(),
-	}
+	hasher := sha3.NewLegacyKeccak256()
+	hasher.Write(r.Squared.BigInt().Bytes())
 
 	// Compute the response digest
-	return calcTaskResponseDigest(taskResponse)
-}
-
-func calcTaskResponseDigest(h *csquaringManager.IIncredibleSquaringServiceManagerTaskResponse) ([]byte, error) {
-	encodeTaskResponseByte, err := abiEncodeTaskResponse(h)
-	if err != nil {
-		return nil, err
-	}
-
-	var taskResponseDigest [32]byte
-	hasher := sha3.NewLegacyKeccak256()
-	hasher.Write(encodeTaskResponseByte)
-	copy(taskResponseDigest[:], hasher.Sum(nil)[:32])
-
-	return taskResponseDigest[:], nil
-}
-
-func abiEncodeTaskResponse(h *csquaringManager.IIncredibleSquaringServiceManagerTaskResponse) ([]byte, error) {
-	taskResponseType, err := abi.NewType("tuple", "", []abi.ArgumentMarshaling{
-		{
-			Name: "referenceTaskIndex",
-			Type: "uint32",
-		},
-		{
-			Name: "numberSquared",
-			Type: "uint256",
-		},
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	arguments := abi.Arguments{
-		{
-			Type: taskResponseType,
-		},
-	}
-
-	return arguments.Pack(h)
+	return hasher.Sum(nil), nil
 }

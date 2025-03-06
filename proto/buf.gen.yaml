@@ -28,14 +28,6 @@ plugins:
       - Mgogoproto/gogo.proto=github.com/gogo/protobuf/gogoproto
       - Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types
       - Mcosmos/orm/v1/orm.proto=cosmossdk.io/orm
-      - Mintellix/example/module/module.proto=example/x/example/types
-      - Mintellix/example/params.proto=example/x/example/types
-      - Mintellix/squared/params.proto=example/x/squared/types
-      - Mintellix/squared/tx.proto=example/x/squared/types
-      - Mintellix/squared/module/module.proto=example/x/squared/types
-      - Mintellix/processor/params.proto=example/x/processor/types
-      - Mintellix/processor/tx.proto=example/x/processor/types
-      - Mintellix/processor/module/module.proto=example/x/processor/types
   - name: go-pulsar
     out: ./generate/go_grpc
     opt:
@@ -47,11 +39,3 @@ plugins:
       - Mgogoproto/gogo.proto=github.com/gogo/protobuf/gogoproto
       - Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types
       - Mcosmos/orm/v1/orm.proto=cosmossdk.io/orm
-      - Mintellix/example/module/module.proto=example/x/example/types
-      - Mintellix/example/params.proto=example/x/example/types
-      - Mintellix/squared/params.proto=example/x/squared/types
-      - Mintellix/squared/tx.proto=example/x/squared/types
-      - Mintellix/squared/module/module.proto=example/x/squared/types
-      - Mintellix/processor/params.proto=example/x/processor/types
-      - Mintellix/processor/tx.proto=example/x/processor/types
-      - Mintellix/processor/module/module.proto=example/x/processor/types

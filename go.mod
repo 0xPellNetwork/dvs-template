@@ -5,20 +5,19 @@ go 1.23.3
 require (
 	cosmossdk.io/api v0.7.6 // indirect
 	cosmossdk.io/math v1.4.0
-	github.com/0xPellNetwork/dvs-contracts-template v0.1.0
 	github.com/0xPellNetwork/pellapp-sdk v0.1.7
 	github.com/0xPellNetwork/pelldvs v0.2.2
-	github.com/0xPellNetwork/pelldvs-interactor v0.0.11
+	github.com/0xPellNetwork/pelldvs-interactor v0.0.11 // indirect
 	github.com/0xPellNetwork/pelldvs-libs v0.2.0
 	github.com/cometbft/cometbft v0.38.12 // indirect
 	github.com/cosmos/cosmos-proto v1.0.0-beta.5
 	github.com/cosmos/cosmos-sdk v0.50.11
 	github.com/cosmos/gogoproto v1.7.0
-	github.com/ethereum/go-ethereum v1.14.13
+	github.com/ethereum/go-ethereum v1.14.13 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0 // indirect
-	github.com/pkg/errors v0.9.1
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
 	golang.org/x/crypto v0.32.0
@@ -27,7 +26,7 @@ require (
 	google.golang.org/protobuf v1.36.3 // indirect
 )
 
-require cosmossdk.io/log v1.5.0
+require cosmossdk.io/log v1.5.0 // indirect
 
 require (
 	cosmossdk.io/collections v0.4.0 // indirect
@@ -113,7 +112,6 @@ require (
 	github.com/hashicorp/go-metrics v0.5.3 // indirect
 	github.com/hashicorp/go-plugin v1.5.2 // indirect
 	github.com/hashicorp/golang-lru v1.0.2 // indirect
-	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hashicorp/yamux v0.1.1 // indirect
 	github.com/hdevalence/ed25519consensus v0.1.0 // indirect
@@ -168,6 +166,7 @@ require (
 	github.com/tklauser/go-sysconf v0.3.12 // indirect
 	github.com/tklauser/numcpus v0.6.1 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
+	github.com/urfave/cli/v2 v2.27.1 // indirect
 	github.com/zondax/hid v0.9.2 // indirect
 	github.com/zondax/ledger-go v0.14.3 // indirect
 	go.etcd.io/bbolt v1.4.0-alpha.0.0.20240404170359-43604f3112c5 // indirect
