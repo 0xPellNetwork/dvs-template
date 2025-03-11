@@ -84,6 +84,23 @@ docker-dvs-rerun:
 	make docker-dvs-up
 	make docker-dvs-logs
 
+docker-gateway-up:
+	@cd docker && docker compose up task-gateway -d
+
+docker-gateway-down:
+	@cd docker && docker compose down task-gateway -v
+
+docker-gateway-logs:
+	@cd docker && docker compose logs task-gateway -f
+
+docker-gateway-shell:
+	@cd docker && docker compose exec -it task-gateway bash
+
+docker-gateway-rerun:
+	make docker-gateway-down
+	make docker-gateway-up
+	make docker-gateway-logs
+
 docker-test:
 	@bash ./docker/scripts/test-in-host.sh
 

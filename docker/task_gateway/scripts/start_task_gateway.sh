@@ -69,7 +69,7 @@ EOF
 }
 
 function start_task_gateway {
-  squaringd start-task-gateway --home "$PELLDVS_HOME"
+  squaringd start-chain-connector --home "$PELLDVS_HOME"
 }
 
 ## start sshd

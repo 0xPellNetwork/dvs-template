@@ -1,6 +1,5 @@
 FROM golang:1.23-bullseye AS build
 
-ARG GITHUB_TOKEN
 ARG HTTP_PROXY
 ARG HTTPS_PROXY
 

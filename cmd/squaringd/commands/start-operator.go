@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"math/big"
 	"os"
-	"strconv"
 
 	"cosmossdk.io/math"
 	csquaringManager "github.com/0xPellNetwork/dvs-contracts-template/bindings/IncredibleSquaringServiceManager"
 	"github.com/0xPellNetwork/pellapp-sdk/dvs_msg_handler/tx"
 	pkglogger "github.com/0xPellNetwork/pellapp-sdk/logger"
+	interactorconfig "github.com/0xPellNetwork/pelldvs-interactor/config"
 	dvslog "github.com/0xPellNetwork/pelldvs-libs/log"
 	rpclocal "github.com/0xPellNetwork/pelldvs/rpc/client/local"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -48,8 +48,17 @@ func runOperator(cmd *cobra.Command) error {
 
 	node := app.NewApp(codectypes.NewInterfaceRegistry(), logger, config, squaringConfig.GatewayRPCClientURL)
 
-	td := NewTaskDispatcher(pkglogger.NewDVSLogAdapter(serverCtx.Logger).With("module", "task-dispacther"), node.DvsNode.GetLocalClient(), fmt.Sprintf("%s/%s", config.RootDir, "config/chain.detail.json"), squaringConfig.ChainServiceManagerAddress)
-	if err = td.Start(); err != nil {
+	td, err := NewTaskDispatcher(
+		pkglogger.NewDVSLogAdapter(serverCtx.Logger).With("module", "task-dispacther"),
+		node.DvsNode.GetLocalClient(),
+		config.Pell.InteractorConfigPath,
+		squaringConfig.ChainServiceManagerAddress,
+	)
+	if err != nil {
+		return err
+	}
+
+	if err := td.Start(); err != nil {
 		logger.Error("Failed to start task dispatcher", "error", err)
 		return fmt.Errorf("failed to start TaskDispatcher: %w", err)
 	}
@@ -71,6 +80,7 @@ func runOperator(cmd *cobra.Command) error {
 type ChainWatcher struct {
 	chainID        int64
 	rpcURL         string
+	wsURL          string
 	serviceManager *csquaringManager.ContractIncredibleSquaringServiceManager
 	taskChan       chan *csquaringManager.ContractIncredibleSquaringServiceManagerNewTaskCreated
 }
@@ -84,47 +94,45 @@ type TaskDispatcher struct {
 }
 
 // NewTaskDispatcher creates a new task dispatcher
-func NewTaskDispatcher(logger dvslog.Logger, pellDVSClient *rpclocal.Local, chainsConfigPath string, chainServiceManagerAddress map[int64]string) *TaskDispatcher {
-	// Read chain.detail.json config
-	chainDetails := make(map[string]struct {
-		RPCURL string `json:"rpc_url"`
-	})
+func NewTaskDispatcher(logger dvslog.Logger, pellDVSClient *rpclocal.Local, interacotrCfgPath string, chainServiceManagerAddress map[int64]string) (*TaskDispatcher, error) {
+	var interacotrConfig = interactorconfig.Config{}
 
-	configBytes, err := os.ReadFile(chainsConfigPath)
+	configBytes, err := os.ReadFile(interacotrCfgPath)
 	if err != nil {
 		logger.Error("Failed to read chain config", "error", err)
-		return nil
+		return nil, fmt.Errorf("failed to read chain config: %w", err)
 	}
 
-	if err := json.Unmarshal(configBytes, &chainDetails); err != nil {
+	if err := json.Unmarshal(configBytes, &interacotrConfig); err != nil {
 		logger.Error("Failed to parse chain config", "error", err)
-		return nil
+		return nil, fmt.Errorf("failed to parse chain config: %w", err)
 	}
 
 	var chains []*ChainWatcher
 
-	for chainIDStr, detail := range chainDetails {
-		chainID, _ := strconv.ParseInt(chainIDStr, 10, 64)
-		serviceManagerAddr, has := chainServiceManagerAddress[chainID]
+	for chainID, detail := range interacotrConfig.ContractConfig.DVSConfigs {
+		serviceManagerAddr, has := chainServiceManagerAddress[int64(chainID)]
 		if !has {
 			logger.Error("Chain service manager address not found", "chainID", chainID)
 			continue
 		}
-		ethClient, err := ethclient.Dial(detail.RPCURL)
+
+		wsCLient, err := ethclient.Dial(detail.WSURL)
 		if err != nil {
 			logger.Error("Failed to connect to Ethereum client", "error", err)
-			continue
+			return nil, fmt.Errorf("failed to connect to Ethereum client: %w", err)
 		}
 
-		serviceManager, err := csquaringManager.NewContractIncredibleSquaringServiceManager(common.HexToAddress(serviceManagerAddr), ethClient)
+		serviceManager, err := csquaringManager.NewContractIncredibleSquaringServiceManager(common.HexToAddress(serviceManagerAddr), wsCLient)
 		if err != nil {
 			logger.Error("Failed to create contract filter", "error", err)
-			continue
+			return nil, fmt.Errorf("failed to create contract filter: %w", err)
 		}
 
 		chains = append(chains, &ChainWatcher{
-			chainID:        chainID,
+			chainID:        int64(chainID),
 			rpcURL:         detail.RPCURL,
+			wsURL:          detail.WSURL,
 			serviceManager: serviceManager,
 			taskChan:       make(chan *csquaringManager.ContractIncredibleSquaringServiceManagerNewTaskCreated),
 		})
@@ -135,7 +143,7 @@ func NewTaskDispatcher(logger dvslog.Logger, pellDVSClient *rpclocal.Local, chai
 		chains:        chains,
 		pellDVSClient: pellDVSClient,
 		msgEncoder:    tx.NewDefaultDecoder(codec.NewProtoCodec(codectypes.NewInterfaceRegistry())),
-	}
+	}, nil
 }
 
 // Start starts the task dispatcher
@@ -152,6 +160,7 @@ func (td *TaskDispatcher) listenForNewTasks(chain *ChainWatcher) {
 		"chainID", chain.chainID,
 		"serviceManager", chain.serviceManager,
 		"rpcURL", chain.rpcURL,
+		"wsURL", chain.wsURL,
 	)
 	filterOpts := &bind.WatchOpts{}
 
