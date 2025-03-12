@@ -7,12 +7,11 @@ import (
 	"math/big"
 	"os"
 
+	"cosmossdk.io/log"
 	"cosmossdk.io/math"
-	csquaringManager "github.com/0xPellNetwork/dvs-contracts-template/bindings/IncredibleSquaringServiceManager"
-	"github.com/0xPellNetwork/pellapp-sdk/dvs_msg_handler/tx"
-	pkglogger "github.com/0xPellNetwork/pellapp-sdk/logger"
+	csquaringmanager "github.com/0xPellNetwork/dvs-contracts-template/bindings/IncredibleSquaringServiceManager"
+	"github.com/0xPellNetwork/pellapp-sdk/service/tx"
 	interactorconfig "github.com/0xPellNetwork/pelldvs-interactor/config"
-	dvslog "github.com/0xPellNetwork/pelldvs-libs/log"
 	rpclocal "github.com/0xPellNetwork/pelldvs/rpc/client/local"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -23,6 +22,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/0xPellNetwork/dvs-template/app"
+	chainconnector "github.com/0xPellNetwork/dvs-template/chain_connector"
+	sqserver "github.com/0xPellNetwork/dvs-template/dvs/squared/server"
 	"github.com/0xPellNetwork/dvs-template/dvs/squared/types"
 )
 
@@ -46,11 +47,17 @@ func runOperator(cmd *cobra.Command) error {
 		return fmt.Errorf("failed to load squaring config: %w", err)
 	}
 
-	node := app.NewApp(codectypes.NewInterfaceRegistry(), logger, config, squaringConfig.GatewayRPCClientURL)
+	sqserver.ChainConnector, err = chainconnector.NewClient(squaringConfig.GatewayRPCClientURL)
+	if err != nil {
+		logger.Error("Failed to create Chain Connector client", "error", err)
+		return fmt.Errorf("failed to create Chain Connector client: %v", err)
+	}
+
+	node := app.NewApp(codectypes.NewInterfaceRegistry(), logger, config)
 
 	td, err := NewTaskDispatcher(
-		pkglogger.NewDVSLogAdapter(serverCtx.Logger).With("module", "task-dispacther"),
-		node.DVSClient,
+		serverCtx.Logger,
+		node.DvsNode.GetLocalClient(),
 		config.Pell.InteractorConfigPath,
 		squaringConfig.ChainServiceManagerAddress,
 	)
@@ -81,8 +88,8 @@ type ChainWatcher struct {
 	chainID        int64
 	rpcURL         string
 	wsURL          string
-	serviceManager *csquaringManager.ContractIncredibleSquaringServiceManager
-	taskChan       chan *csquaringManager.ContractIncredibleSquaringServiceManagerNewTaskCreated
+	serviceManager *csquaringmanager.ContractIncredibleSquaringServiceManager
+	taskChan       chan *csquaringmanager.ContractIncredibleSquaringServiceManagerNewTaskCreated
 }
 
 // TaskDispatcher manages multiple chain watchers and dispatches tasks
@@ -90,11 +97,11 @@ type TaskDispatcher struct {
 	chains        []*ChainWatcher
 	pellDVSClient *rpclocal.Local
 	msgEncoder    tx.MsgEncoder
-	logger        dvslog.Logger
+	logger        log.Logger
 }
 
 // NewTaskDispatcher creates a new task dispatcher
-func NewTaskDispatcher(logger dvslog.Logger, pellDVSClient *rpclocal.Local, interacotrCfgPath string, chainServiceManagerAddress map[int64]string) (*TaskDispatcher, error) {
+func NewTaskDispatcher(logger log.Logger, pellDVSClient *rpclocal.Local, interacotrCfgPath string, chainServiceManagerAddress map[int64]string) (*TaskDispatcher, error) {
 	var interacotrConfig = interactorconfig.Config{}
 
 	configBytes, err := os.ReadFile(interacotrCfgPath)
@@ -123,7 +130,7 @@ func NewTaskDispatcher(logger dvslog.Logger, pellDVSClient *rpclocal.Local, inte
 			return nil, fmt.Errorf("failed to connect to Ethereum client: %w", err)
 		}
 
-		serviceManager, err := csquaringManager.NewContractIncredibleSquaringServiceManager(common.HexToAddress(serviceManagerAddr), wsCLient)
+		serviceManager, err := csquaringmanager.NewContractIncredibleSquaringServiceManager(common.HexToAddress(serviceManagerAddr), wsCLient)
 		if err != nil {
 			logger.Error("Failed to create contract filter", "error", err)
 			return nil, fmt.Errorf("failed to create contract filter: %w", err)
@@ -134,7 +141,7 @@ func NewTaskDispatcher(logger dvslog.Logger, pellDVSClient *rpclocal.Local, inte
 			rpcURL:         detail.RPCURL,
 			wsURL:          detail.WSURL,
 			serviceManager: serviceManager,
-			taskChan:       make(chan *csquaringManager.ContractIncredibleSquaringServiceManagerNewTaskCreated),
+			taskChan:       make(chan *csquaringmanager.ContractIncredibleSquaringServiceManagerNewTaskCreated),
 		})
 	}
 
@@ -164,7 +171,7 @@ func (td *TaskDispatcher) listenForNewTasks(chain *ChainWatcher) {
 	)
 	filterOpts := &bind.WatchOpts{}
 
-	taskChan := make(chan *csquaringManager.ContractIncredibleSquaringServiceManagerNewTaskCreated, 1000)
+	taskChan := make(chan *csquaringmanager.ContractIncredibleSquaringServiceManagerNewTaskCreated, 1000)
 	sub, err := chain.serviceManager.WatchNewTaskCreated(filterOpts, taskChan, nil)
 	if err != nil {
 		td.logger.Error("Failed to create task listener", "error", err)
@@ -209,7 +216,7 @@ func (td *TaskDispatcher) listenForNewTasks(chain *ChainWatcher) {
 	}
 }
 
-func (td *TaskDispatcher) serializeTask(chainID uint64, newTask *csquaringManager.ContractIncredibleSquaringServiceManagerNewTaskCreated) ([]byte, error) {
+func (td *TaskDispatcher) serializeTask(chainID uint64, newTask *csquaringmanager.ContractIncredibleSquaringServiceManagerNewTaskCreated) ([]byte, error) {
 	td.logger.Info("serializeTask",
 		"chainID", chainID,
 		"taskIndex", newTask.TaskIndex,

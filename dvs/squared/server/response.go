@@ -2,28 +2,26 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"math/big"
 
 	"cosmossdk.io/math"
-	csquaringManager "github.com/0xPellNetwork/dvs-contracts-template/bindings/IncredibleSquaringServiceManager"
+	csquaringmanager "github.com/0xPellNetwork/dvs-contracts-template/bindings/IncredibleSquaringServiceManager"
 	"github.com/0xPellNetwork/pellapp-sdk/pelldvs"
 	sdktypes "github.com/0xPellNetwork/pellapp-sdk/types"
 	"github.com/0xPellNetwork/pelldvs/crypto/bls"
 
+	chainconnector "github.com/0xPellNetwork/dvs-template/chain_connector"
 	"github.com/0xPellNetwork/dvs-template/dvs/squared/types"
 )
 
-type ResponseServer struct {
-	Server
-}
+var ChainConnector *chainconnector.Client
 
-func NewResponseServer(server Server) types.DVSResponseServer {
-	return &ResponseServer{Server: server}
-}
-
-var _ types.DVSResponseServer = ResponseServer{}
-
-func (d ResponseServer) ResponseNumberSquared(ctx context.Context, in *types.RequestNumberSquaredIn) (*types.ResponseNumberSquaredOut, error) {
+func (s Server) DVSResponsHandler(ctx context.Context, in *types.RequestNumberSquaredIn) (*types.ResponseNumberSquaredOut, error) {
+	s.logger.Debug("ProcessResponseNumberSquared",
+		"TaskIndex", in.Task.TaskIndex,
+		"taskDetail", fmt.Sprintf("%+v", in.Task),
+	)
 	pkgCtx := sdktypes.UnwrapContext(ctx)
 
 	validatedData, err := pelldvs.GetDvsRequestValidatedData(pkgCtx)
@@ -39,7 +37,7 @@ func (d ResponseServer) ResponseNumberSquared(ctx context.Context, in *types.Req
 
 	squared, _ := math.NewIntFromString(string(validatedData.Data))
 	// Construct task parameters
-	task := csquaringManager.IIncredibleSquaringServiceManagerTask{
+	task := csquaringmanager.IIncredibleSquaringServiceManagerTask{
 		NumberToBeSquared:        in.Task.Squared.BigInt(),
 		TaskCreatedBlock:         in.Task.Height,
 		GroupNumbers:             groupNumbersBytes,
@@ -47,31 +45,31 @@ func (d ResponseServer) ResponseNumberSquared(ctx context.Context, in *types.Req
 	}
 
 	// Construct TaskResponse parameters
-	taskResponse := csquaringManager.IIncredibleSquaringServiceManagerTaskResponse{
+	taskResponse := csquaringmanager.IIncredibleSquaringServiceManagerTaskResponse{
 		ReferenceTaskIndex: in.Task.TaskIndex,
 		NumberSquared:      squared.BigInt(),
 	}
 
 	// Construct NonSignerStakesAndSignature parameters
-	nonSignerPubkeysG1 := make([]csquaringManager.BN254G1Point, len(validatedData.NonSignersPubkeysG1))
+	nonSignerPubkeysG1 := make([]csquaringmanager.BN254G1Point, len(validatedData.NonSignersPubkeysG1))
 	for i, pubkey := range validatedData.NonSignersPubkeysG1 {
-		nonSignerPubkeysG1[i] = csquaringManager.BN254G1Point{
+		nonSignerPubkeysG1[i] = csquaringmanager.BN254G1Point{
 			X: new(big.Int).SetBytes(pubkey[:32]),
 			Y: new(big.Int).SetBytes(pubkey[32:]),
 		}
 	}
 
-	quorumApksG1 := []csquaringManager.BN254G1Point{}
+	quorumApksG1 := []csquaringmanager.BN254G1Point{}
 	for _, apk := range validatedData.QuorumApksG1 {
 		tapk := bls.NewZeroG1Point()
 		_ = tapk.Unmarshal(apk)
-		quorumApksG1 = append(quorumApksG1, csquaringManager.BN254G1Point{
+		quorumApksG1 = append(quorumApksG1, csquaringmanager.BN254G1Point{
 			X: tapk.X.BigInt(big.NewInt(0)),
 			Y: tapk.Y.BigInt(big.NewInt(0)),
 		})
 	}
 
-	signersAggSigG1 := csquaringManager.BN254G1Point{
+	signersAggSigG1 := csquaringmanager.BN254G1Point{
 		X: new(big.Int).SetBytes(validatedData.SignersAggSigG1[:32]),
 		Y: new(big.Int).SetBytes(validatedData.SignersAggSigG1[32:]),
 	}
@@ -81,7 +79,7 @@ func (d ResponseServer) ResponseNumberSquared(ctx context.Context, in *types.Req
 		nonSignerStakeIndices[i] = indices.NonSignerStakeIndice
 	}
 
-	signersApkG2 := csquaringManager.BN254G2Point{
+	signersApkG2 := csquaringmanager.BN254G2Point{
 		X: [2]*big.Int{
 			new(big.Int).SetBytes(validatedData.SignersApkG2[:32]),
 			new(big.Int).SetBytes(validatedData.SignersApkG2[32:64]),
@@ -92,7 +90,7 @@ func (d ResponseServer) ResponseNumberSquared(ctx context.Context, in *types.Req
 		},
 	}
 
-	nonSignerStakesAndSignature := csquaringManager.IBLSSignatureVerifierNonSignerStakesAndSignature{
+	nonSignerStakesAndSignature := csquaringmanager.IBLSSignatureVerifierNonSignerStakesAndSignature{
 		NonSignerPubkeys:            nonSignerPubkeysG1,
 		GroupApks:                   quorumApksG1,
 		ApkG2:                       signersApkG2,
@@ -103,11 +101,17 @@ func (d ResponseServer) ResponseNumberSquared(ctx context.Context, in *types.Req
 		NonSignerStakeIndices:       nonSignerStakeIndices,
 	}
 
-	err = d.tg.RespondToTask(uint64(pkgCtx.ChainID()), task, taskResponse, nonSignerStakesAndSignature)
+	s.logger.Debug("RespondToTask",
+		"task", task, "taskResponse", taskResponse,
+		"nonSignerStakesAndSignature", nonSignerStakesAndSignature,
+	)
+	err = ChainConnector.RespondToTask(uint64(pkgCtx.ChainID()), task, taskResponse, nonSignerStakesAndSignature)
 	if err != nil {
-		d.logger.Error("Failed to respond to task", "error", err)
+		s.logger.Error("Failed to respond to task", "error", err)
 		return nil, err
 	}
+
+	s.logger.Info("ProcessResponseNumberSquared Done")
 
 	return &types.ResponseNumberSquaredOut{}, nil
 }

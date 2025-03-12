@@ -1,7 +1,7 @@
 package result
 
 import (
-	csquaringManager "github.com/0xPellNetwork/dvs-contracts-template/bindings/IncredibleSquaringServiceManager"
+	csquaringmanager "github.com/0xPellNetwork/dvs-contracts-template/bindings/IncredibleSquaringServiceManager"
 	"github.com/cosmos/gogoproto/proto"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"golang.org/x/crypto/sha3"
@@ -11,8 +11,7 @@ import (
 
 // ResultHandler implements the result handler interface
 // for processing squared number service results
-type ResultHandler struct {
-}
+type ResultHandler struct{}
 
 // NewResultHandler creates a new instance of the result handler
 func NewResultHandler() *ResultHandler {
@@ -36,7 +35,7 @@ func (p *ResultHandler) GetDigest(msg proto.Message) ([]byte, error) {
 	}
 
 	// Construct the task response structure
-	taskResponse := &csquaringManager.IIncredibleSquaringServiceManagerTaskResponse{
+	taskResponse := &csquaringmanager.IIncredibleSquaringServiceManagerTaskResponse{
 		ReferenceTaskIndex: r.TaskIndex,
 		NumberSquared:      r.Squared.BigInt(),
 	}
@@ -45,7 +44,7 @@ func (p *ResultHandler) GetDigest(msg proto.Message) ([]byte, error) {
 	return calcTaskResponseDigest(taskResponse)
 }
 
-func calcTaskResponseDigest(h *csquaringManager.IIncredibleSquaringServiceManagerTaskResponse) ([]byte, error) {
+func calcTaskResponseDigest(h *csquaringmanager.IIncredibleSquaringServiceManagerTaskResponse) ([]byte, error) {
 	encodeTaskResponseByte, err := abiEncodeTaskResponse(h)
 	if err != nil {
 		return nil, err
@@ -59,7 +58,7 @@ func calcTaskResponseDigest(h *csquaringManager.IIncredibleSquaringServiceManage
 	return taskResponseDigest[:], nil
 }
 
-func abiEncodeTaskResponse(h *csquaringManager.IIncredibleSquaringServiceManagerTaskResponse) ([]byte, error) {
+func abiEncodeTaskResponse(h *csquaringmanager.IIncredibleSquaringServiceManagerTaskResponse) ([]byte, error) {
 	taskResponseType, err := abi.NewType("tuple", "", []abi.ArgumentMarshaling{
 		{
 			Name: "referenceTaskIndex",

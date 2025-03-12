@@ -12,8 +12,7 @@ plugins:
       - Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types
       - Mcosmos/orm/v1/orm.proto=cosmossdk.io/orm
       - Mdvs/squared/task.proto=../dvs/squared/types
-      - Mdvs/squared/dvs_request.proto=../dvs/squared/types
-      - Mdvs/squared/dvs_response.proto=../dvs/squared/types
+      - Mdvs/squared/msg_server.proto=../dvs/squared/types
   - name: grpc-gateway
     out: ..
     opt:

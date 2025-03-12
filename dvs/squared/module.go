@@ -1,8 +1,9 @@
 package dvs
 
 import (
-	dsm "github.com/0xPellNetwork/pellapp-sdk/dvs_msg_handler"
-	grpc1 "github.com/cosmos/gogoproto/grpc"
+	sdkservice "github.com/0xPellNetwork/pellapp-sdk/service"
+	"github.com/0xPellNetwork/pelldvs-libs/log"
+	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 
 	resulthandlers "github.com/0xPellNetwork/dvs-template/dvs/squared/result"
 	"github.com/0xPellNetwork/dvs-template/dvs/squared/server"
@@ -11,33 +12,33 @@ import (
 
 // AppModule implements an application module for the dvs module.
 type AppModule struct {
-	server         server.Server
-	RequestServer  grpc1.Server
-	ResponseServer grpc1.Server
+	server server.Server
 }
 
 // NewAppModule creates a new AppModule object
-func NewAppModule(s server.Server) AppModule {
+func NewAppModule(logger log.Logger) AppModule {
+	s, err := server.NewServer(logger)
+	if err != nil {
+		panic(err)
+	}
+
 	return AppModule{
-		server:         s,
-		RequestServer:  dsm.GetRequestHandler(),
-		ResponseServer: dsm.GetResponseHandler(),
+		server: s,
 	}
 }
 
 // RegisterServices registers module services.
-func (am AppModule) RegisterServices() {
-	dvsProcessRequestServer := server.NewRequestServer(am.server)
-	dvsPostProcessRequestServer := server.NewResponseServer(am.server)
-
+func (am AppModule) RegisterServices(router *sdkservice.MsgRouter) {
+	configurator := router.GetConfigurator()
 	// register dvs-msg handler server
-	types.RegisterDVSRequestServer(am.RequestServer, dvsProcessRequestServer)
-	types.RegisterDVSResponseServer(am.ResponseServer, dvsPostProcessRequestServer)
+	types.RegisterSquaredMsgServerServer(configurator, am.server)
 
 	// register dvs-msg result handler
-	if r, ok := am.RequestServer.(*dsm.RequestHandler); ok {
-		r.RegisterResultHandler(
-			&types.RequestNumberSquaredOut{}, resulthandlers.NewResultHandler(),
-		)
-	}
+	configurator.RegisterResultMsgExtractor(
+		&types.RequestNumberSquaredOut{}, resulthandlers.NewResultHandler(),
+	)
+}
+
+func (am AppModule) RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
+	types.RegisterInterfaces(registry)
 }
