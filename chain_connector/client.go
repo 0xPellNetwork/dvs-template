@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/rpc"
 
-	csquaringManager "github.com/0xPellNetwork/dvs-contracts-template/bindings/IncredibleSquaringServiceManager"
+	csquaringmanager "github.com/0xPellNetwork/dvs-contracts-template/bindings/IncredibleSquaringServiceManager"
 )
 
 // Client represents RPC client
@@ -27,9 +27,9 @@ func NewClient(address string) (*Client, error) {
 // RespondToTask handles client RPC method call
 func (tc *Client) RespondToTask(
 	chainID uint64,
-	task csquaringManager.IIncredibleSquaringServiceManagerTask,
-	taskResponse csquaringManager.IIncredibleSquaringServiceManagerTaskResponse,
-	nonSignerStakesAndSignature csquaringManager.IBLSSignatureVerifierNonSignerStakesAndSignature,
+	task csquaringmanager.IIncredibleSquaringServiceManagerTask,
+	taskResponse csquaringmanager.IIncredibleSquaringServiceManagerTaskResponse,
+	nonSignerStakesAndSignature csquaringmanager.IBLSSignatureVerifierNonSignerStakesAndSignature,
 ) error {
 	req := &TaskRequest{
 		ChainID:                     chainID,

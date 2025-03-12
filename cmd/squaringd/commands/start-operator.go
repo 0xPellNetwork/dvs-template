@@ -9,12 +9,9 @@ import (
 
 	"cosmossdk.io/log"
 	"cosmossdk.io/math"
-	csquaringManager "github.com/0xPellNetwork/dvs-contracts-template/bindings/IncredibleSquaringServiceManager"
-	chainConnector "github.com/0xPellNetwork/dvs-template/chain_connector"
-	sqserver "github.com/0xPellNetwork/dvs-template/dvs/squared/server"
+	csquaringmanager "github.com/0xPellNetwork/dvs-contracts-template/bindings/IncredibleSquaringServiceManager"
 	"github.com/0xPellNetwork/pellapp-sdk/service/tx"
 	interactorconfig "github.com/0xPellNetwork/pelldvs-interactor/config"
-
 	rpclocal "github.com/0xPellNetwork/pelldvs/rpc/client/local"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -25,6 +22,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/0xPellNetwork/dvs-template/app"
+	chainconnector "github.com/0xPellNetwork/dvs-template/chain_connector"
+	sqserver "github.com/0xPellNetwork/dvs-template/dvs/squared/server"
 	"github.com/0xPellNetwork/dvs-template/dvs/squared/types"
 )
 
@@ -48,7 +47,7 @@ func runOperator(cmd *cobra.Command) error {
 		return fmt.Errorf("failed to load squaring config: %w", err)
 	}
 
-	sqserver.ChainConnector, err = chainConnector.NewClient(squaringConfig.GatewayRPCClientURL)
+	sqserver.ChainConnector, err = chainconnector.NewClient(squaringConfig.GatewayRPCClientURL)
 	if err != nil {
 		logger.Error("Failed to create Chain Connector client", "error", err)
 		return fmt.Errorf("failed to create Chain Connector client: %v", err)
@@ -89,8 +88,8 @@ type ChainWatcher struct {
 	chainID        int64
 	rpcURL         string
 	wsURL          string
-	serviceManager *csquaringManager.ContractIncredibleSquaringServiceManager
-	taskChan       chan *csquaringManager.ContractIncredibleSquaringServiceManagerNewTaskCreated
+	serviceManager *csquaringmanager.ContractIncredibleSquaringServiceManager
+	taskChan       chan *csquaringmanager.ContractIncredibleSquaringServiceManagerNewTaskCreated
 }
 
 // TaskDispatcher manages multiple chain watchers and dispatches tasks
@@ -131,7 +130,7 @@ func NewTaskDispatcher(logger log.Logger, pellDVSClient *rpclocal.Local, interac
 			return nil, fmt.Errorf("failed to connect to Ethereum client: %w", err)
 		}
 
-		serviceManager, err := csquaringManager.NewContractIncredibleSquaringServiceManager(common.HexToAddress(serviceManagerAddr), wsCLient)
+		serviceManager, err := csquaringmanager.NewContractIncredibleSquaringServiceManager(common.HexToAddress(serviceManagerAddr), wsCLient)
 		if err != nil {
 			logger.Error("Failed to create contract filter", "error", err)
 			return nil, fmt.Errorf("failed to create contract filter: %w", err)
@@ -142,7 +141,7 @@ func NewTaskDispatcher(logger log.Logger, pellDVSClient *rpclocal.Local, interac
 			rpcURL:         detail.RPCURL,
 			wsURL:          detail.WSURL,
 			serviceManager: serviceManager,
-			taskChan:       make(chan *csquaringManager.ContractIncredibleSquaringServiceManagerNewTaskCreated),
+			taskChan:       make(chan *csquaringmanager.ContractIncredibleSquaringServiceManagerNewTaskCreated),
 		})
 	}
 
@@ -172,7 +171,7 @@ func (td *TaskDispatcher) listenForNewTasks(chain *ChainWatcher) {
 	)
 	filterOpts := &bind.WatchOpts{}
 
-	taskChan := make(chan *csquaringManager.ContractIncredibleSquaringServiceManagerNewTaskCreated, 1000)
+	taskChan := make(chan *csquaringmanager.ContractIncredibleSquaringServiceManagerNewTaskCreated, 1000)
 	sub, err := chain.serviceManager.WatchNewTaskCreated(filterOpts, taskChan, nil)
 	if err != nil {
 		td.logger.Error("Failed to create task listener", "error", err)
@@ -217,7 +216,7 @@ func (td *TaskDispatcher) listenForNewTasks(chain *ChainWatcher) {
 	}
 }
 
-func (td *TaskDispatcher) serializeTask(chainID uint64, newTask *csquaringManager.ContractIncredibleSquaringServiceManagerNewTaskCreated) ([]byte, error) {
+func (td *TaskDispatcher) serializeTask(chainID uint64, newTask *csquaringmanager.ContractIncredibleSquaringServiceManagerNewTaskCreated) ([]byte, error) {
 	td.logger.Info("serializeTask",
 		"chainID", chainID,
 		"taskIndex", newTask.TaskIndex,

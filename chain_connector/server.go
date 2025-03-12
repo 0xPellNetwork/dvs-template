@@ -9,10 +9,9 @@ import (
 	"os"
 	"sync"
 
-	csquaringManager "github.com/0xPellNetwork/dvs-contracts-template/bindings/IncredibleSquaringServiceManager"
+	csquaringmanager "github.com/0xPellNetwork/dvs-contracts-template/bindings/IncredibleSquaringServiceManager"
 	"github.com/0xPellNetwork/pelldvs-interactor/chainlibs/eth"
 	"github.com/0xPellNetwork/pelldvs-libs/log"
-
 	"github.com/0xPellNetwork/pelldvs/libs/service"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
@@ -52,16 +51,16 @@ type ChainBinding struct {
 	ChainID         uint64
 	ContractAddress common.Address
 	Client          eth.Client
-	ServiceManager  *csquaringManager.ContractIncredibleSquaringServiceManager
+	ServiceManager  *csquaringmanager.ContractIncredibleSquaringServiceManager
 	Auth            *bind.TransactOpts
 }
 
 // TaskRequest represents RPC request structure
 type TaskRequest struct {
 	ChainID                     uint64
-	Task                        csquaringManager.IIncredibleSquaringServiceManagerTask
-	TaskResponse                csquaringManager.IIncredibleSquaringServiceManagerTaskResponse
-	NonSignerStakesAndSignature csquaringManager.IBLSSignatureVerifierNonSignerStakesAndSignature
+	Task                        csquaringmanager.IIncredibleSquaringServiceManagerTask
+	TaskResponse                csquaringmanager.IIncredibleSquaringServiceManagerTaskResponse
+	NonSignerStakesAndSignature csquaringmanager.IBLSSignatureVerifierNonSignerStakesAndSignature
 }
 
 // TaskResponse represents RPC response structure
@@ -106,7 +105,7 @@ func NewServer(configPath string) (*Server, error) {
 			return nil, fmt.Errorf("failed to create Ethereum client for chainID: %d, error: %v", chainID, err)
 		}
 		contractAddress := common.HexToAddress(chainCfg.ContractAddress)
-		serviceManager, err := csquaringManager.NewContractIncredibleSquaringServiceManager(contractAddress, ethClient)
+		serviceManager, err := csquaringmanager.NewContractIncredibleSquaringServiceManager(contractAddress, ethClient)
 		if err != nil {
 			logger.Error("Failed to create service manager contract", "chainID", chainID, "error", err)
 			return nil, fmt.Errorf("failed to create service manager contract for chainID: %d, error: %v", chainID, err)
