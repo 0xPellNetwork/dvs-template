@@ -25,12 +25,6 @@ message RequestNumberSquaredIn {
   TaskRequest task = 1;
 }
 
-message RequestNumberSquaredInResp {
-  option (cosmos_proto.implements_interface) = "cosmos.base.v1beta1.Msg";
-  option (amino.name) = "dvs/squared/reponse";
-  TaskRequest task = 1;
-}
-
 // RequestPriceFeedOut
 message RequestNumberSquaredOut {
   option (cosmos_proto.implements_interface) = "cosmos.base.v1beta1.Msg";
