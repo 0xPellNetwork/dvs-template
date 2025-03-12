@@ -33,6 +33,12 @@ docker-all-status:
 docker-up-operator:
 	@cd docker && docker compose up operator01 operator02 -d
 
+docker-mix-operators-up:
+	@cd docker && docker compose up operator01 operator02 -d
+
+docker-mix-operators-down:
+	@cd docker && docker compose down operator01 operator02
+
 docker-hardhat-up:
 	@cd docker && docker compose up hardhat -d
 

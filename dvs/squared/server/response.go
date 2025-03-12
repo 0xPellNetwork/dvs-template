@@ -12,11 +12,16 @@ import (
 
 	chainConnector "github.com/0xPellNetwork/dvs-template/chain_connector"
 	"github.com/0xPellNetwork/dvs-template/dvs/squared/types"
+	"fmt"
 )
 
 var ChainConnector *chainConnector.Client
 
-func (s Server) ResponseNumberSquared(ctx context.Context, in *types.RequestNumberSquaredIn) (*types.ResponseNumberSquaredOut, error) {
+func (s Server) DVSResponsHandler(ctx context.Context, in *types.RequestNumberSquaredIn) (*types.ResponseNumberSquaredOut, error) {
+	s.logger.Debug("ProcessResponseNumberSquared",
+		"TaskIndex", in.Task.TaskIndex,
+		"taskDetail", fmt.Sprintf("%+v", in.Task),
+	)
 	pkgCtx := sdktypes.UnwrapContext(ctx)
 
 	validatedData, err := pelldvs.GetDvsRequestValidatedData(pkgCtx)
@@ -96,11 +101,17 @@ func (s Server) ResponseNumberSquared(ctx context.Context, in *types.RequestNumb
 		NonSignerStakeIndices:       nonSignerStakeIndices,
 	}
 
+	s.logger.Debug("RespondToTask",
+		"task", task, "taskResponse", taskResponse,
+		"nonSignerStakesAndSignature", nonSignerStakesAndSignature,
+	)
 	err = ChainConnector.RespondToTask(uint64(pkgCtx.ChainID()), task, taskResponse, nonSignerStakesAndSignature)
 	if err != nil {
 		s.logger.Error("Failed to respond to task", "error", err)
 		return nil, err
 	}
+
+	s.logger.Info("ProcessResponseNumberSquared Done")
 
 	return &types.ResponseNumberSquaredOut{}, nil
 }

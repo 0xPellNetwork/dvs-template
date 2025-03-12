@@ -14,14 +14,20 @@ service SquaredMsgServer {
       returns (RequestNumberSquaredOut) {}
 
   // ResponseNumberSquared defines avsi logic processing
-  rpc ResponseNumberSquared(RequestNumberSquaredIn)
+  rpc DVSResponsHandler(RequestNumberSquaredIn)
       returns (ResponseNumberSquaredOut) {}
 }
 
 // RequestNumberSquaredIn defines task request from task-dispatcher
 message RequestNumberSquaredIn {
   option (cosmos_proto.implements_interface) = "cosmos.base.v1beta1.Msg";
-  option (amino.name) = "dvs/squared/process_price_feed";
+  option (amino.name) = "dvs/squared/request";
+  TaskRequest task = 1;
+}
+
+message RequestNumberSquaredInResp {
+  option (cosmos_proto.implements_interface) = "cosmos.base.v1beta1.Msg";
+  option (amino.name) = "dvs/squared/reponse";
   TaskRequest task = 1;
 }
 

@@ -25,7 +25,7 @@ func NewServer(
 }
 
 // Logger returns a module-specific logger.
-func (k *Server) Logger() log.Logger {
+func (k Server) Logger() log.Logger {
 	// Add module-specific information to the logger.
 	return k.logger.With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
