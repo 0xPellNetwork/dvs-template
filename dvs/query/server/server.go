@@ -34,5 +34,4 @@ func (s *Server) SetApp(app apptypes.AppQueryStorer) {
 type AppQuerier interface {
 	GetCommitStore(key storetypes.StoreKey) storetypes.KVStore
 	GetCommitMultiStore() storetypes.CommitMultiStore
-	// Other necessary methods...
 }
