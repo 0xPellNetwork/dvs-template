@@ -129,6 +129,7 @@ func (s *Server) DVSResponsHandler(ctx context.Context, in *types.RequestNumberS
 	result := dvscommontypes.TaskResult{
 		TaskIndex:   in.Task.TaskIndex,
 		TaskRequest: in.Task,
+		Result:      squared.String(),
 		PutOnChain:  true,
 	}
 

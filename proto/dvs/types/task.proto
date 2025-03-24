@@ -11,7 +11,8 @@ option go_package = "dvs/types";
 message TaskResult {
   uint32 task_index = 1;
   TaskRequest task_request = 2;
-  bool put_on_chain = 3;
+  string result = 3;
+  bool put_on_chain = 4;
 }
 
 message TaskRequest {
