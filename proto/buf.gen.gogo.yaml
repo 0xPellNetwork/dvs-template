@@ -11,10 +11,17 @@ plugins:
       - plugins=grpc
       - Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types
       - Mcosmos/orm/v1/orm.proto=cosmossdk.io/orm
-      - Mdvs/squared/task.proto=../dvs/squared/types
-      - Mdvs/squared/msg_server.proto=../dvs/squared/types
+      - Mdvs/types/task.proto=github.com/0xPellNetwork/dvs-template/dvs/types
+      - Mdvs/squared/msg_service.proto=dvs/squared/types
+      - Mdvs/query/msg_service.proto=dvs/query/types
   - name: grpc-gateway
     out: ..
     opt:
+      - paths=source_relative
+      - allow_delete_body=true
       - logtostderr=true
-      # - allow_colon_final_segments=true
+      - Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types
+      - Mcosmos/orm/v1/orm.proto=cosmossdk.io/orm
+      - Mdvs/types/task.proto=github.com/0xPellNetwork/dvs-template/dvs/types
+      - Mdvs/squared/msg_service.proto=dvs/squared/types
+      - Mdvs/query/msg_service.proto=dvs/query/types

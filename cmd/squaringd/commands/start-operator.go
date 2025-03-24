@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"math/big"
 	"os"
 
 	"cosmossdk.io/log"
@@ -23,8 +22,10 @@ import (
 
 	"github.com/0xPellNetwork/dvs-template/app"
 	chainconnector "github.com/0xPellNetwork/dvs-template/chain_connector"
+	dvsappcfg "github.com/0xPellNetwork/dvs-template/config"
 	sqserver "github.com/0xPellNetwork/dvs-template/dvs/squared/server"
-	"github.com/0xPellNetwork/dvs-template/dvs/squared/types"
+	squaredtypes "github.com/0xPellNetwork/dvs-template/dvs/squared/types"
+	"github.com/0xPellNetwork/dvs-template/dvs/types"
 )
 
 // StartOperatorCmd defines the command to start the Operator
@@ -41,7 +42,7 @@ func startOperator(cmd *cobra.Command, args []string) error {
 
 func runOperator(cmd *cobra.Command) error {
 	serverCtx := server.GetServerContextFromCmd(cmd)
-	squaringConfig, err := LoadSquaringConfig(fmt.Sprintf("%s/%s", config.RootDir, "config/squaring.config.json"))
+	squaringConfig, err := dvsappcfg.LoadAppConfig(fmt.Sprintf("%s/%s", config.RootDir, "config/squaring.config.json"))
 	if err != nil {
 		logger.Error("Failed to load squaring config", "error", err)
 		return fmt.Errorf("failed to load squaring config: %w", err)
@@ -53,7 +54,7 @@ func runOperator(cmd *cobra.Command) error {
 		return fmt.Errorf("failed to create Chain Connector client: %v", err)
 	}
 
-	node := app.NewApp(codectypes.NewInterfaceRegistry(), logger, config)
+	node := app.NewApp(codectypes.NewInterfaceRegistry(), logger, config, squaringConfig)
 
 	td, err := NewTaskDispatcher(
 		serverCtx.Logger,
@@ -184,7 +185,6 @@ func (td *TaskDispatcher) listenForNewTasks(chain *ChainWatcher) {
 		select {
 		case newTask := <-taskChan:
 			td.logger.Info("New task created", "taskID", newTask.TaskIndex, "chainID", chain.chainID)
-			td.logger.Info("New task created", "taskID", newTask.TaskIndex, "chainID", chain.chainID)
 			groupNumbers := make([]uint32, len(newTask.Task.GroupNumbers))
 			for i, b := range newTask.Task.GroupNumbers {
 				groupNumbers[i] = uint32(b)
@@ -210,7 +210,6 @@ func (td *TaskDispatcher) listenForNewTasks(chain *ChainWatcher) {
 
 		case err := <-sub.Err():
 			td.logger.Error("Task monitoring error", "error", err)
-			td.logger.Error("Task monitoring error", "error", err)
 			return
 		}
 	}
@@ -224,7 +223,7 @@ func (td *TaskDispatcher) serializeTask(chainID uint64, newTask *csquaringmanage
 	)
 
 	task := newTask.Task
-	taskRequest := &types.RequestNumberSquaredIn{
+	taskRequest := &squaredtypes.RequestNumberSquaredIn{
 		Task: &types.TaskRequest{
 			TaskIndex:                newTask.TaskIndex,
 			Height:                   task.TaskCreatedBlock,
@@ -236,50 +235,4 @@ func (td *TaskDispatcher) serializeTask(chainID uint64, newTask *csquaringmanage
 	}
 
 	return td.msgEncoder.EncodeMsgs(taskRequest)
-}
-
-// Config defines the configuration file structure
-type TaskGatewayConfig struct {
-	TaskGatewayAddress        string   `json:"task_gateway_address"`
-	ServiceManagerAddress     string   `json:"service_manager_address"`
-	TaskGatewayPrivateKeyPath string   `json:"gateway_key_path"`
-	RPCURL                    string   `json:"rpc_url"`
-	ChainID                   *big.Int `json:"chain_id"`
-}
-
-// LoadConfig loads configuration from the specified path
-func LoadTaskGatewayConfig(path string) (*TaskGatewayConfig, error) {
-	configBytes, err := os.ReadFile(path)
-	if err != nil {
-		return nil, err
-	}
-
-	var config TaskGatewayConfig
-	if err := json.Unmarshal(configBytes, &config); err != nil {
-		return nil, err
-	}
-
-	return &config, nil
-}
-
-// SquaringConfig defines the configuration file structure
-type SquaringConfig struct {
-	GatewayRPCClientURL        string           `json:"gateway_rpc_client_url"`
-	ServiceManagerAddress      string           `json:"service_manager_address"`
-	ChainServiceManagerAddress map[int64]string `json:"chain_service_manager_address"`
-}
-
-// LoadSquaringConfig loads configuration from the specified path
-func LoadSquaringConfig(path string) (*SquaringConfig, error) {
-	configBytes, err := os.ReadFile(path)
-	if err != nil {
-		return nil, err
-	}
-
-	var config SquaringConfig
-	if err := json.Unmarshal(configBytes, &config); err != nil {
-		return nil, err
-	}
-
-	return &config, nil
 }

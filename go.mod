@@ -6,7 +6,7 @@ require (
 	cosmossdk.io/api v0.7.6 // indirect
 	cosmossdk.io/math v1.4.0
 	github.com/0xPellNetwork/dvs-contracts-template v0.1.0
-	github.com/0xPellNetwork/pellapp-sdk v0.1.8
+	github.com/0xPellNetwork/pellapp-sdk v0.1.9-0.20250324055030-e1338943444f
 	github.com/0xPellNetwork/pelldvs v0.2.2
 	github.com/0xPellNetwork/pelldvs-interactor v0.0.11
 	github.com/0xPellNetwork/pelldvs-libs v0.2.0
@@ -122,6 +122,7 @@ require (
 	github.com/iancoleman/strcase v0.3.0 // indirect
 	github.com/improbable-eng/grpc-web v0.15.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
+	github.com/jinzhu/copier v0.3.5 // indirect
 	github.com/jmhodges/levigo v1.0.0 // indirect
 	github.com/klauspost/compress v1.17.9 // indirect
 	github.com/klauspost/cpuid/v2 v2.0.9 // indirect

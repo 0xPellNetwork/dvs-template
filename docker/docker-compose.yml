@@ -113,6 +113,9 @@ services:
       task-gateway:
         condition: service_started
     entrypoint: [ "bash", "/root/scripts/start_operator.sh" ]
+    ports:
+      - "8123:8123"
+      - "9123:9123"
     volumes:
       - ./operator/scripts:/root/scripts
     healthcheck:

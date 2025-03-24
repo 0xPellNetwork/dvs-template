@@ -481,3 +481,5 @@ _pd*
 _pf*
 
 bin
+go.work
+go.work.sum

@@ -107,6 +107,40 @@ docker-gateway-rerun:
 	make docker-gateway-up
 	make docker-gateway-logs
 
+docker-operator-all-up:
+	@cd docker && docker compose up operator01 operator02 -d
+
+docker-operator-all-down:
+	@cd docker && docker compose down operator01 operator02 -v
+
+docker-operator-all-logs:
+	@cd docker && docker compose logs operator01 operator02 -f
+
+docker-operator-shell:
+	@cd docker && docker compose exec -it operator bash
+
+docker-operator-all-rerun:
+	make docker-operator-all-down
+	make docker-operator-all-up
+	make docker-operator-all-logs
+
+docker-operator-01-up:
+	@cd docker && docker compose up operator01  -d
+
+docker-operator-01-down:
+	@cd docker && docker compose down operator01  -v
+
+docker-operator-01-logs:
+	@cd docker && docker compose logs operator01  -f
+
+docker-operator-01-shell:
+	@cd docker && docker compose exec -it operator01 bash
+
+docker-operator-01-rerun:
+	make docker-operator-01-down
+	make docker-operator-01-up
+	make docker-operator-01-logs
+
 docker-test:
 	@bash ./docker/scripts/test-in-host.sh
 
@@ -130,4 +164,9 @@ lint-imports:
 	
 .PHONY: proto
 proto:
+	@rm -rf dvs/query/types/msg_service.pb.gw.go
+	@rm -rf dvs/query/msg_service.pb.gw.go
+	@rm -rf dvs/query/types/*.pb.go
+	@rm -rf dvs/types/*.pb.go
 	@cd proto && buf generate --template buf.gen.gogo.yaml
+	@mv -f dvs/query/msg_service.pb.gw.go dvs/query/types/

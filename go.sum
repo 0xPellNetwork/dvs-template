@@ -31,6 +31,10 @@ github.com/0xPellNetwork/pellapp-sdk v0.1.7 h1:LmJ/iBGtbFaHA61VmbmnJFK7RhP/JAh6d
 github.com/0xPellNetwork/pellapp-sdk v0.1.7/go.mod h1:99vl7VRF5RlZiOFYR2N1amw0nLFlg9J/4v892vYSgtc=
 github.com/0xPellNetwork/pellapp-sdk v0.1.8 h1:5ZQ0k9NF+MGO5kdiZqeRvQ9SdAhCsept71Fube1HjB4=
 github.com/0xPellNetwork/pellapp-sdk v0.1.8/go.mod h1:99vl7VRF5RlZiOFYR2N1amw0nLFlg9J/4v892vYSgtc=
+github.com/0xPellNetwork/pellapp-sdk v0.1.9-0.20250322014111-358abe10365b h1:QIBd+3hAQ3Ja98Ch7tD1FxMc4ZcBpAAKsMRqrzEdkeM=
+github.com/0xPellNetwork/pellapp-sdk v0.1.9-0.20250322014111-358abe10365b/go.mod h1:dNdPuplXqHl3MDFps6aXW5Z1MM9hat66qW1G/39nTP0=
+github.com/0xPellNetwork/pellapp-sdk v0.1.9-0.20250324055030-e1338943444f h1:Ojv8jqSBz+6F6coy2qgut0arxOwlkMdgE7IuwSJIGLs=
+github.com/0xPellNetwork/pellapp-sdk v0.1.9-0.20250324055030-e1338943444f/go.mod h1:dNdPuplXqHl3MDFps6aXW5Z1MM9hat66qW1G/39nTP0=
 github.com/0xPellNetwork/pelldvs v0.2.2 h1:OubypLiLcPRHGhA8+82sboAbwy78z4OLsFXsmYuIg1A=
 github.com/0xPellNetwork/pelldvs v0.2.2/go.mod h1:M/JXSKT/sgwHDTajG2wNdgRKQK0L1V8+DnqJbY+w2og=
 github.com/0xPellNetwork/pelldvs-interactor v0.0.11 h1:A0AfzswoninynMZaSqDcJgeKf01s/9GZC9vO6BVgUIY=
@@ -491,6 +495,8 @@ github.com/jackpal/go-nat-pmp v1.0.2 h1:KzKSgb7qkJvOUTqYl9/Hg/me3pWgBmERKrTGD7Bd
 github.com/jackpal/go-nat-pmp v1.0.2/go.mod h1:QPH045xvCAeXUZOxsnwmrtiCoxIr9eob+4orBN1SBKc=
 github.com/jhump/protoreflect v1.15.3 h1:6SFRuqU45u9hIZPJAoZ8c28T3nK64BNdp9w6jFonzls=
 github.com/jhump/protoreflect v1.15.3/go.mod h1:4ORHmSBmlCW8fh3xHmJMGyul1zNqZK4Elxc8qKP+p1k=
+github.com/jinzhu/copier v0.3.5 h1:GlvfUwHk62RokgqVNvYsku0TATCF7bAHVwEXoBh3iJg=
+github.com/jinzhu/copier v0.3.5/go.mod h1:DfbEm0FYsaqBcKcFuvmOZb218JkPGtvSHsKg8S8hyyg=
 github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af/go.mod h1:Nht3zPeWKUH0NzdCt2Blrr5ys8VGpn0CEB0cQHVjt7k=
 github.com/jmhodges/levigo v1.0.0 h1:q5EC36kV79HWeTBWsod3mG11EgStG3qArTKcvlksN1U=
 github.com/jmhodges/levigo v1.0.0/go.mod h1:Q6Qx+uH3RAqyK4rFQroq9RL7mdkABMcfhEI+nNuzMJQ=

@@ -43,7 +43,7 @@ ADMIN_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
 SERVICE_MANAGER_ADDRESS=$(ssh hardhat "cat $HARDHAT_DVS_PATH/IncredibleSquaringServiceManager-Proxy.json" | jq -r .address)
 
 ## create a new task
-NUMBER_TO_BE_SQUARED=${NUMBER_TO_BE_SQUARED:-2}
+NUMBER_TO_BE_SQUARED=$((RANDOM % 10))
 RESULT_OF_SQUARED_NUMBER=$((NUMBER_TO_BE_SQUARED * NUMBER_TO_BE_SQUARED))
 THREADSHOLD=2 # percentage point
 GROUP_NUMBERS=0x00
