@@ -18,10 +18,7 @@ message TaskRequest {
   uint32 task_index = 1;
   uint32 height = 2;
   uint64 chain_id = 3;
-  string squared = 4 [
-    (gogoproto.customtype) = "cosmossdk.io/math.Int",
-    (gogoproto.nullable) = false
-  ];
+  string squared = 4;
   bytes group_numbers = 5;
   uint32 group_threshold_percentage = 6;
 }

@@ -18,11 +18,12 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+
 	dvsappcfg "github.com/0xPellNetwork/dvs-template/config"
 	"github.com/0xPellNetwork/dvs-template/dvs/query"
 	"github.com/0xPellNetwork/dvs-template/dvs/query/types"
 	sq "github.com/0xPellNetwork/dvs-template/dvs/squared"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
 const (

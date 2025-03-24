@@ -11,15 +11,19 @@ check-env-gh-token:
 
 docker-build-all: check-env-gh-token
 	@cd docker && docker compose -f docker-compose.build.yml build
+	@echo "docker build all done, `date`"
 
 docker-build-contracts: check-env-gh-token
 	@cd docker && docker compose -f docker-compose.build.yml build hardhat
+	@echo "docker build contracts done, `date`"
 
 docker-build-pelldvs: check-env-gh-token
 	@cd docker && docker compose -f docker-compose.build.yml build pelldvs
+	@echo "docker build pelldvs done, `date`"
 
 docker-build-operator: check-env-gh-token
 	@cd docker && docker compose -f docker-compose.build.yml build operator
+	@echo "docker build operator done, `date`"
 
 docker-all-up:
 	@cd docker && docker compose up -d

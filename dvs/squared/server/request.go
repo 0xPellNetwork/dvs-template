@@ -12,7 +12,12 @@ import (
 )
 
 func (s *Server) RequestNumberSquared(ctx context.Context, request *types.RequestNumberSquaredIn) (*types.RequestNumberSquaredOut, error) {
-	numInt := request.Task.Squared.Int64()
+	num, ok := math.NewIntFromString(request.Task.Squared)
+	if !ok {
+		return nil, fmt.Errorf("failed to convert string to int for %v", request.Task.Squared)
+	}
+
+	numInt := num.Int64()
 	s.logger.Info("ProcessRequestNumberSquared", "Number", fmt.Sprintf("%+v", numInt))
 
 	// Calculate square

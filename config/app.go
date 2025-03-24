@@ -71,7 +71,7 @@ func (ac *AppConfig) Validate() error {
 	if ac.GatewayRPCClientURL == "" {
 		return fmt.Errorf("GatewayRPCClientURL is required")
 	}
-	if ac.ChainServiceManagerAddress == nil || len(ac.ChainServiceManagerAddress) == 0 {
+	if len(ac.ChainServiceManagerAddress) == 0 {
 		return fmt.Errorf("ChainServiceManagerAddress is required")
 	}
 	return nil

@@ -39,8 +39,9 @@ func (s *Server) DVSResponsHandler(ctx context.Context, in *types.RequestNumberS
 
 	squared, _ := math.NewIntFromString(string(validatedData.Data))
 	// Construct task parameters
+	num, _ := math.NewIntFromString(in.Task.Squared)
 	task := csquaringmanager.IIncredibleSquaringServiceManagerTask{
-		NumberToBeSquared:        in.Task.Squared.BigInt(),
+		NumberToBeSquared:        num.BigInt(),
 		TaskCreatedBlock:         in.Task.Height,
 		GroupNumbers:             groupNumbersBytes,
 		GroupThresholdPercentage: in.Task.GroupThresholdPercentage,

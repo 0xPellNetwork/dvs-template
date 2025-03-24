@@ -3,11 +3,10 @@ package server
 import (
 	"context"
 	"fmt"
-
-	"github.com/golang/protobuf/proto"
-
 	"math/big"
 	"strings"
+
+	"github.com/golang/protobuf/proto" //nolint:staticcheck
 
 	"github.com/0xPellNetwork/dvs-template/dvs/query/types"
 	dvscommontypes "github.com/0xPellNetwork/dvs-template/dvs/types"
@@ -33,6 +32,10 @@ func (s *Server) GetData(ctx context.Context, req *types.GetDataRequest) (*types
 
 	key := []byte(req.Key)
 	value := store.Get([]byte(req.Key))
+	if len(value) == 0 {
+		s.logger.Error("failed to get value from store", "key", req.Key)
+		return nil, fmt.Errorf("failed to get value for key: %s", req.Key)
+	}
 
 	var result = dvscommontypes.TaskResult{}
 	err := proto.Unmarshal(value, &result)
@@ -51,7 +54,7 @@ func (s *Server) GetData(ctx context.Context, req *types.GetDataRequest) (*types
 	}, nil
 }
 
-// ListData lists all data with a specific prefix
+// ListData lists all data with a key list like "task-01,task-02,key3"
 func (s *Server) ListData(ctx context.Context, req *types.ListDataRequest) (*types.ListDataResponse, error) {
 	s.logger.Debug("ListData request", "keys", req.Keys)
 
@@ -67,15 +70,8 @@ func (s *Server) ListData(ctx context.Context, req *types.ListDataRequest) (*typ
 		if len(trimmedKey) == 0 {
 			continue
 		}
-		vlist := strings.Split(trimmedKey, "-")
-		if len(vlist) != 2 {
-			s.logger.Error("invalid key format", "key", trimmedKey)
-			continue
-		}
 
-		keyStr = fmt.Sprintf("%s-%s", vlist[0], vlist[1])
-
-		taskID, ok := big.NewInt(0).SetString(vlist[1], 10)
+		taskID, ok := big.NewInt(0).SetString(trimmedKey, 10)
 		if !ok {
 			s.logger.Error("invalid task ID", "key", trimmedKey)
 			continue

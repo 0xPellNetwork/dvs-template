@@ -7,7 +7,7 @@ import (
 )
 
 func GenItemKey(taskId uint32) string {
-	return fmt.Sprintf("task-%d", taskId)
+	return fmt.Sprintf("%d", taskId)
 }
 
 // AppQuerier defines the interface for querying app data

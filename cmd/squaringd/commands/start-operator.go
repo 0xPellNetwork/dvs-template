@@ -7,7 +7,6 @@ import (
 	"os"
 
 	"cosmossdk.io/log"
-	"cosmossdk.io/math"
 	csquaringmanager "github.com/0xPellNetwork/dvs-contracts-template/bindings/IncredibleSquaringServiceManager"
 	"github.com/0xPellNetwork/pellapp-sdk/service/tx"
 	interactorconfig "github.com/0xPellNetwork/pelldvs-interactor/config"
@@ -228,7 +227,7 @@ func (td *TaskDispatcher) serializeTask(chainID uint64, newTask *csquaringmanage
 			TaskIndex:                newTask.TaskIndex,
 			Height:                   task.TaskCreatedBlock,
 			ChainId:                  chainID,
-			Squared:                  math.NewInt(task.NumberToBeSquared.Int64()),
+			Squared:                  task.NumberToBeSquared.String(),
 			GroupNumbers:             task.GroupNumbers,
 			GroupThresholdPercentage: task.GroupThresholdPercentage,
 		},
