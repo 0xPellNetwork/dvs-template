@@ -16,14 +16,16 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/std"
 	sdktypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	grpcmiddleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpcrecovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
 	dvsappcfg "github.com/0xPellNetwork/dvs-template/config"
-	"github.com/0xPellNetwork/dvs-template/dvs/query"
-	"github.com/0xPellNetwork/dvs-template/dvs/query/types"
 	sq "github.com/0xPellNetwork/dvs-template/dvs/squared"
+	"github.com/0xPellNetwork/dvs-template/dvs/squared/types"
+	"google.golang.org/grpc/reflection"
 )
 
 const (
@@ -44,9 +46,9 @@ type App struct {
 	appCodec          codec.Codec
 	logger            log.Logger
 	interfaceRegistry codectypes.InterfaceRegistry
+	sqModule          *sq.AppModule
 
-	DvsNode     *pelldvs.Node
-	queryModule *query.AppModule
+	DvsNode *pelldvs.Node
 }
 
 type DBContext struct {
@@ -105,7 +107,7 @@ func NewApp(
 
 	// load latest version
 	app.logger.Info("Loading latest version")
-	err = app.GetCommitMultiStore().LoadLatestVersion()
+	err = app.CommitMultiStore().LoadLatestVersion()
 	if err != nil {
 		app.logger.Error("Failed to load latest version", "error", err)
 		panic(fmt.Sprintf("failed to load latest version: %v", err))
@@ -116,16 +118,17 @@ func NewApp(
 	if err != nil {
 		panic(err)
 	}
+	txMgr := NewAppTxManager(app.BaseApp)
+	queryMgr := NewAppQueryManager(app.BaseApp)
 
 	// Register DVS module services
-	sqModule := sq.NewAppModule(app.logger, storeKey)
-	sqModule.RegisterServices(app.GetMsgRouter())
-	sqModule.RegisterInterfaces(app.interfaceRegistry)
-	sqModule.SetAppCommitStore(app)
+	app.sqModule = sq.NewAppModule(app.logger, storeKey, txMgr, queryMgr)
+	app.sqModule.RegisterServices(app.GetMsgRouter())
+	app.sqModule.RegisterInterfaces(app.interfaceRegistry)
 
-	// Register query services
-	app.queryModule = query.NewAppModule(app.logger, storeKey)
-	app.queryModule.SetAppQuerier(app)
+	app.BaseApp.SetGRPCQueryRouter(baseapp.NewGRPCQueryRouter())
+	app.BaseApp.GRPCQueryRouter().SetInterfaceRegistry(app.interfaceRegistry)
+	app.sqModule.RegisterQueryServer(app.BaseApp.GRPCQueryRouter())
 
 	return app
 }
@@ -158,12 +161,43 @@ func (app *App) Start() error {
 	return nil
 }
 
+func (app *App) createQueryContextInterceptor() grpc.UnaryServerInterceptor {
+	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+		//// get metadata from the context
+		//// if metadata is not found, return an error
+		//// if metadata is found, create a query context and inject it into the context.
+		//md, ok := metadata.FromIncomingContext(ctx)
+		//if !ok {
+		//	return nil, status.Error(codes.Internal, "failed to read metadata")
+		//}
+		//
+		//// create a query context
+		////queryCtx, err := app.CreateQueryContext(md.)
+		//
+		//// inject the query context into the context
+		//ctx = context.WithValue(ctx, "app_query_context", queryCtx)
+
+		app.logger.Info("GRPC CreateQueryContextInterceptor")
+
+		return handler(ctx, req)
+	}
+}
+
 // setup gGRPC server and start listening
 func (app *App) SetupQueryGRPCServer() error {
 	// create gRPC server
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(
+		grpc.UnaryInterceptor(
+			grpcmiddleware.ChainUnaryServer(
+				grpcrecovery.UnaryServerInterceptor(),
+				app.createQueryContextInterceptor(),
+			),
+		),
+	)
 
-	app.queryModule.RegisterGRPCServices(grpcServer)
+	reflection.Register(grpcServer)
+
+	app.BaseApp.RegisterGRPCServer(grpcServer)
 
 	go func() {
 		lis, err := net.Listen("tcp", app.dvsAppConfig.QueryRPCServerAddress)
@@ -186,7 +220,7 @@ func (app *App) SetupQueryHTTPServer(grpcAddr, httpAddr string) error {
 
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 
-	err := types.RegisterQueryServiceHandlerFromEndpoint(
+	err := types.RegisterQueryHandlerFromEndpoint(
 		ctx, mux, grpcAddr, opts,
 	)
 	if err != nil {

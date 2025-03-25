@@ -35,6 +35,8 @@ github.com/0xPellNetwork/pellapp-sdk v0.1.9-0.20250322014111-358abe10365b h1:QIB
 github.com/0xPellNetwork/pellapp-sdk v0.1.9-0.20250322014111-358abe10365b/go.mod h1:dNdPuplXqHl3MDFps6aXW5Z1MM9hat66qW1G/39nTP0=
 github.com/0xPellNetwork/pellapp-sdk v0.1.9-0.20250324055030-e1338943444f h1:Ojv8jqSBz+6F6coy2qgut0arxOwlkMdgE7IuwSJIGLs=
 github.com/0xPellNetwork/pellapp-sdk v0.1.9-0.20250324055030-e1338943444f/go.mod h1:dNdPuplXqHl3MDFps6aXW5Z1MM9hat66qW1G/39nTP0=
+github.com/0xPellNetwork/pellapp-sdk v0.1.9-0.20250325131527-a5c23dd63f2c h1:2F2Qtx9ABeF/+KoqsSVC/VPVqqvev80pka1CS+yPU/o=
+github.com/0xPellNetwork/pellapp-sdk v0.1.9-0.20250325131527-a5c23dd63f2c/go.mod h1:dNdPuplXqHl3MDFps6aXW5Z1MM9hat66qW1G/39nTP0=
 github.com/0xPellNetwork/pelldvs v0.2.2 h1:OubypLiLcPRHGhA8+82sboAbwy78z4OLsFXsmYuIg1A=
 github.com/0xPellNetwork/pelldvs v0.2.2/go.mod h1:M/JXSKT/sgwHDTajG2wNdgRKQK0L1V8+DnqJbY+w2og=
 github.com/0xPellNetwork/pelldvs-interactor v0.0.11 h1:A0AfzswoninynMZaSqDcJgeKf01s/9GZC9vO6BVgUIY=

@@ -1,12 +1,12 @@
 syntax = "proto3";
-package dvs.types;
+package dvs.squared;
 
 import "amino/amino.proto";
 import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 
-option go_package = "dvs/types";
+option go_package = "dvs/squared/types";
 
 message TaskResult {
   uint32 task_index = 1;

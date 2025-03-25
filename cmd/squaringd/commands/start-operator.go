@@ -23,8 +23,7 @@ import (
 	chainconnector "github.com/0xPellNetwork/dvs-template/chain_connector"
 	dvsappcfg "github.com/0xPellNetwork/dvs-template/config"
 	sqserver "github.com/0xPellNetwork/dvs-template/dvs/squared/server"
-	squaredtypes "github.com/0xPellNetwork/dvs-template/dvs/squared/types"
-	"github.com/0xPellNetwork/dvs-template/dvs/types"
+	"github.com/0xPellNetwork/dvs-template/dvs/squared/types"
 )
 
 // StartOperatorCmd defines the command to start the Operator
@@ -222,7 +221,7 @@ func (td *TaskDispatcher) serializeTask(chainID uint64, newTask *csquaringmanage
 	)
 
 	task := newTask.Task
-	taskRequest := &squaredtypes.RequestNumberSquaredIn{
+	taskRequest := &types.RequestNumberSquaredIn{
 		Task: &types.TaskRequest{
 			TaskIndex:                newTask.TaskIndex,
 			Height:                   task.TaskCreatedBlock,

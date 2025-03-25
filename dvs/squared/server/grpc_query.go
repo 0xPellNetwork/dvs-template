@@ -6,39 +6,49 @@ import (
 	"math/big"
 	"strings"
 
+	storetypes "cosmossdk.io/store/types"
+	"github.com/0xPellNetwork/pelldvs-libs/log"
 	"github.com/golang/protobuf/proto" //nolint:staticcheck
 
-	"github.com/0xPellNetwork/dvs-template/dvs/query/types"
-	dvscommontypes "github.com/0xPellNetwork/dvs-template/dvs/types"
+	"github.com/0xPellNetwork/dvs-template/dvs/squared/types"
 	apptypes "github.com/0xPellNetwork/dvs-template/types"
 )
 
+// make sure Server implements the QueryServiceServer interface
+var _ types.QueryServer = &Querier{}
+
+type Querier struct {
+	types.UnimplementedQueryServer
+	logger   log.Logger
+	storeKey storetypes.StoreKey
+	queryMgr apptypes.QueryManager
+}
+
+// NewServer creates a new Server instance
+func NewQuerier(logger log.Logger, storeKey storetypes.StoreKey, queryMgr apptypes.QueryManager) (*Querier, error) {
+	return &Querier{
+		logger:   logger,
+		storeKey: storeKey,
+		queryMgr: queryMgr,
+	}, nil
+}
+
 // GetData retrieves data for a given key
-func (s *Server) GetData(ctx context.Context, req *types.GetDataRequest) (*types.GetDataResponse, error) {
+func (s *Querier) GetData(ctx context.Context, req *types.GetDataRequest) (*types.GetDataResponse, error) {
 	s.logger.Info("GetData request",
 		"key", req.Key,
 		"store_key", s.storeKey.String(),
 	)
 
-	if s.app == nil {
-		return nil, fmt.Errorf("store is not set")
-	}
-
-	s.logger.Info("Accessing query store", "key", s.storeKey.String())
-	store := s.app.GetQueryStore(s.storeKey)
-	if store == nil {
-		return nil, fmt.Errorf("store is not set")
-	}
-
 	key := []byte(req.Key)
-	value := store.Get([]byte(req.Key))
+	value, err := s.queryMgr.Get(ctx, s.storeKey, []byte(req.Key))
 	if len(value) == 0 {
 		s.logger.Error("failed to get value from store", "key", req.Key)
 		return nil, fmt.Errorf("failed to get value for key: %s", req.Key)
 	}
 
-	var result = dvscommontypes.TaskResult{}
-	err := proto.Unmarshal(value, &result)
+	var result = types.TaskResult{}
+	err = proto.Unmarshal(value, &result)
 	if err != nil {
 		s.logger.Error("failed to unmarshal task result", "error", err)
 	}
@@ -55,7 +65,7 @@ func (s *Server) GetData(ctx context.Context, req *types.GetDataRequest) (*types
 }
 
 // ListData lists all data with a key list like "task-01,task-02,key3"
-func (s *Server) ListData(ctx context.Context, req *types.ListDataRequest) (*types.ListDataResponse, error) {
+func (s *Querier) ListData(ctx context.Context, req *types.ListDataRequest) (*types.ListDataResponse, error) {
 	s.logger.Debug("ListData request", "keys", req.Keys)
 
 	keyStrList := strings.Split(req.Keys, ",")
@@ -86,24 +96,23 @@ func (s *Server) ListData(ctx context.Context, req *types.ListDataRequest) (*typ
 	}
 
 	var result = types.ListDataResponse{}
-	store := s.app.GetQueryStore(s.storeKey)
-	if store == nil {
-		return nil, fmt.Errorf("store is not set")
-	}
-	s.logger.Info("Accessing query store", "key", s.storeKey.String())
 	for _, key := range keyList {
-		s.logger.Info("Accessing query store", "key-str", string(key))
 		if len(key) == 0 {
 			continue
 		}
+		s.logger.Info("ListData get item", "key-str", string(key))
 
-		value := store.Get(key)
+		value, err := s.queryMgr.Get(ctx, s.storeKey, key)
+		if err != nil {
+			s.logger.Error("failed to get value from store", "key", string(key), "error", err)
+			continue
+		}
 		if len(value) == 0 {
 			continue
 		}
 
-		var taskResult dvscommontypes.TaskResult
-		err := proto.Unmarshal(value, &taskResult)
+		var taskResult types.TaskResult
+		err = proto.Unmarshal(value, &taskResult)
 		if err != nil {
 			s.logger.Error("failed to unmarshal task result", "error", err)
 			continue

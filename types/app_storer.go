@@ -10,13 +10,7 @@ func GenItemKey(taskId uint32) string {
 	return fmt.Sprintf("%d", taskId)
 }
 
-// AppQuerier defines the interface for querying app data
-type AppCommitStorer interface {
-	GetCommitStore(key storetypes.StoreKey) storetypes.KVStore
-	GetCommitMultiStore() storetypes.CommitMultiStore
-}
-
-type AppQueryStorer interface {
-	GetQueryStore(key storetypes.StoreKey) storetypes.KVStore
-	GetQueryMultiStore() storetypes.MultiStore
+type StoreProvider interface {
+	CommitMultiStore() storetypes.CommitMultiStore
+	QueryMultiStore() storetypes.MultiStore
 }

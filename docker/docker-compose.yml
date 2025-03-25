@@ -116,6 +116,7 @@ services:
     ports:
       - "8123:8123"
       - "9123:9123"
+      - "${OPERATOR_HOST_PORT:-36657}:26657"
     volumes:
       - ./operator/scripts:/root/scripts
     healthcheck:

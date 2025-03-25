@@ -168,9 +168,6 @@ lint-imports:
 	
 .PHONY: proto
 proto:
-	@rm -rf dvs/query/types/msg_service.pb.gw.go
-	@rm -rf dvs/query/msg_service.pb.gw.go
-	@rm -rf dvs/query/types/*.pb.go
-	@rm -rf dvs/types/*.pb.go
+	@rm -rf dvs/squared/types/query.pb.gw.go
 	@cd proto && buf generate --template buf.gen.gogo.yaml
-	@mv -f dvs/query/msg_service.pb.gw.go dvs/query/types/
+	@mv -f dvs/squared/query.pb.gw.go dvs/squared/types/

@@ -2,6 +2,7 @@ package dvs
 
 import (
 	storetypes "cosmossdk.io/store/types"
+	"github.com/0xPellNetwork/pellapp-sdk/baseapp"
 	sdkservice "github.com/0xPellNetwork/pellapp-sdk/service"
 	"github.com/0xPellNetwork/pelldvs-libs/log"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -14,21 +15,36 @@ import (
 
 // AppModule implements an application module for the dvs module.
 type AppModule struct {
-	logger log.Logger
-	server *server.Server
-	app    apptypes.AppCommitStorer
+	logger      log.Logger
+	server      *server.Server
+	queryServer *server.Querier
+
+	txMgr    apptypes.TxManager
+	queryMgr apptypes.DataManager
 }
 
 // NewAppModule creates a new AppModule object
-func NewAppModule(logger log.Logger, storeKey storetypes.StoreKey) *AppModule {
-	s, err := server.NewServer(logger, storeKey)
+func NewAppModule(logger log.Logger,
+	storeKey storetypes.StoreKey,
+	txMgr apptypes.TxManager,
+	queryMgr apptypes.DataManager,
+) *AppModule {
+	s, err := server.NewServer(logger, storeKey, txMgr)
+	if err != nil {
+		panic(err)
+	}
+
+	qs, err := server.NewQuerier(logger, storeKey, queryMgr)
 	if err != nil {
 		panic(err)
 	}
 
 	return &AppModule{
-		logger: logger.With("module", types.ModuleName),
-		server: s,
+		logger:      logger.With("module", types.ModuleName),
+		server:      s,
+		queryServer: qs,
+		txMgr:       txMgr,
+		queryMgr:    queryMgr,
 	}
 }
 
@@ -44,12 +60,10 @@ func (am *AppModule) RegisterServices(router *sdkservice.MsgRouter) {
 	)
 }
 
-func (am *AppModule) RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
-	types.RegisterInterfaces(registry)
+func (am *AppModule) RegisterQueryServer(router *baseapp.GRPCQueryRouter) {
+	types.RegisterQueryServer(router, am.queryServer)
 }
 
-func (am *AppModule) SetAppCommitStore(app apptypes.AppCommitStorer) {
-	am.logger.Info("SetAppCommitStore", "app", app)
-	am.app = app
-	am.server.SetApp(app)
+func (am *AppModule) RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
+	types.RegisterInterfaces(registry)
 }

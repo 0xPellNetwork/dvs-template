@@ -1,14 +1,14 @@
 // proto/dvs/query/service.proto
 syntax = "proto3";
-package dvs.query;
+package dvs.squared;
 
-import "dvs/types/task.proto";
 import "google/api/annotations.proto";
+import "dvs/squared/task.proto";
 
-option go_package = "dvs/query/types";
+option go_package = "dvs/squared/types";
 
 // QueryService provides data query functionality
-service QueryService {
+service Query {
   // GetData retrieves data for a given key
   rpc GetData(GetDataRequest) returns (GetDataResponse) {
     option (google.api.http) = {get: "/v1/item/{key}"};
@@ -24,12 +24,12 @@ service QueryService {
 message GetDataRequest {
   string key = 1;
   string result = 2;
-  dvs.types.TaskRequest task = 3;
+  TaskRequest task = 3;
 }
 
 // GetDataResponse is the response for getting data
 message GetDataResponse {
-  dvs.types.TaskResult value = 1;
+  TaskResult value = 1;
 }
 
 // ListDataRequest is the request for listing data
@@ -46,5 +46,5 @@ message ListDataResponse {
 // KeyValue represents a key-value pair
 message ListItem {
   string key = 1;
-  dvs.types.TaskResult value = 2;
+  TaskResult value = 2;
 }

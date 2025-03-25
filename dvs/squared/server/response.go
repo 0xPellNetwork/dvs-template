@@ -13,7 +13,6 @@ import (
 
 	chainconnector "github.com/0xPellNetwork/dvs-template/chain_connector"
 	"github.com/0xPellNetwork/dvs-template/dvs/squared/types"
-	dvscommontypes "github.com/0xPellNetwork/dvs-template/dvs/types"
 	apptypes "github.com/0xPellNetwork/dvs-template/types"
 )
 
@@ -116,17 +115,8 @@ func (s *Server) DVSResponsHandler(ctx context.Context, in *types.RequestNumberS
 
 	s.logger.Info("ProcessResponseNumberSquared Done")
 
-	if s.app == nil {
-		return nil, fmt.Errorf("app is not set")
-	}
-
-	store := s.app.GetCommitStore(s.storeKey)
-	if store == nil {
-		return nil, fmt.Errorf("store is not set")
-	}
-
 	key := []byte(apptypes.GenItemKey(in.Task.TaskIndex))
-	result := dvscommontypes.TaskResult{
+	result := types.TaskResult{
 		TaskIndex:   in.Task.TaskIndex,
 		TaskRequest: in.Task,
 		Result:      squared.String(),
@@ -137,8 +127,16 @@ func (s *Server) DVSResponsHandler(ctx context.Context, in *types.RequestNumberS
 	if err != nil {
 		return nil, err
 	}
-	store.Set(key, bresult)
-	commitID := s.app.GetCommitMultiStore().Commit()
+	err = s.txMgr.Set(ctx, s.storeKey, key, bresult)
+	if err != nil {
+		s.logger.Error("Failed to set value in store", "key", string(key), "error", err)
+		return nil, err
+	}
+	commitID, err := s.txMgr.Commit()
+	if err != nil {
+		s.logger.Error("Failed to commit transaction", "error", err)
+		return nil, err
+	}
 	s.logger.Info("process done for response",
 		"input", in.Task.Squared,
 		"result", squared,
