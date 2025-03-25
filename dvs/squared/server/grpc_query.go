@@ -39,16 +39,15 @@ func (s *Querier) GetData(ctx context.Context, req *types.GetDataRequest) (*type
 		"key", req.Key,
 		"store_key", s.storeKey.String(),
 	)
-
 	key := []byte(req.Key)
-	value, err := s.queryMgr.Get(ctx, s.storeKey, []byte(req.Key))
+	value, _ := s.queryMgr.Get(ctx, s.storeKey, key)
 	if len(value) == 0 {
 		s.logger.Error("failed to get value from store", "key", req.Key)
 		return nil, fmt.Errorf("failed to get value for key: %s", req.Key)
 	}
 
 	var result = types.TaskResult{}
-	err = proto.Unmarshal(value, &result)
+	err := proto.Unmarshal(value, &result)
 	if err != nil {
 		s.logger.Error("failed to unmarshal task result", "error", err)
 	}

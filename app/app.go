@@ -16,16 +16,14 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/std"
 	sdktypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	grpcmiddleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	grpcrecovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/reflection"
 
 	dvsappcfg "github.com/0xPellNetwork/dvs-template/config"
 	sq "github.com/0xPellNetwork/dvs-template/dvs/squared"
 	"github.com/0xPellNetwork/dvs-template/dvs/squared/types"
-	"google.golang.org/grpc/reflection"
 )
 
 const (
@@ -161,39 +159,10 @@ func (app *App) Start() error {
 	return nil
 }
 
-func (app *App) createQueryContextInterceptor() grpc.UnaryServerInterceptor {
-	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-		//// get metadata from the context
-		//// if metadata is not found, return an error
-		//// if metadata is found, create a query context and inject it into the context.
-		//md, ok := metadata.FromIncomingContext(ctx)
-		//if !ok {
-		//	return nil, status.Error(codes.Internal, "failed to read metadata")
-		//}
-		//
-		//// create a query context
-		////queryCtx, err := app.CreateQueryContext(md.)
-		//
-		//// inject the query context into the context
-		//ctx = context.WithValue(ctx, "app_query_context", queryCtx)
-
-		app.logger.Info("GRPC CreateQueryContextInterceptor")
-
-		return handler(ctx, req)
-	}
-}
-
 // setup gGRPC server and start listening
 func (app *App) SetupQueryGRPCServer() error {
 	// create gRPC server
-	grpcServer := grpc.NewServer(
-		grpc.UnaryInterceptor(
-			grpcmiddleware.ChainUnaryServer(
-				grpcrecovery.UnaryServerInterceptor(),
-				app.createQueryContextInterceptor(),
-			),
-		),
-	)
+	grpcServer := grpc.NewServer()
 
 	reflection.Register(grpcServer)
 

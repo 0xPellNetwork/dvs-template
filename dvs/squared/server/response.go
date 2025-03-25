@@ -61,11 +61,11 @@ func (s *Server) DVSResponsHandler(ctx context.Context, in *types.RequestNumberS
 		}
 	}
 
-	quorumApksG1 := []csquaringmanager.BN254G1Point{}
-	for _, apk := range validatedData.QuorumApksG1 {
+	groupApksG1 := []csquaringmanager.BN254G1Point{}
+	for _, apk := range validatedData.GroupApksG1 {
 		tapk := bls.NewZeroG1Point()
 		_ = tapk.Unmarshal(apk)
-		quorumApksG1 = append(quorumApksG1, csquaringmanager.BN254G1Point{
+		groupApksG1 = append(groupApksG1, csquaringmanager.BN254G1Point{
 			X: tapk.X.BigInt(big.NewInt(0)),
 			Y: tapk.Y.BigInt(big.NewInt(0)),
 		})
@@ -94,11 +94,11 @@ func (s *Server) DVSResponsHandler(ctx context.Context, in *types.RequestNumberS
 
 	nonSignerStakesAndSignature := csquaringmanager.IBLSSignatureVerifierNonSignerStakesAndSignature{
 		NonSignerPubkeys:            nonSignerPubkeysG1,
-		GroupApks:                   quorumApksG1,
+		GroupApks:                   groupApksG1,
 		ApkG2:                       signersApkG2,
 		Sigma:                       signersAggSigG1,
-		NonSignerGroupBitmapIndices: validatedData.NonSignerQuorumBitmapIndices,
-		GroupApkIndices:             validatedData.QuorumApkIndices,
+		NonSignerGroupBitmapIndices: validatedData.NonSignerGroupBitmapIndices,
+		GroupApkIndices:             validatedData.GroupApkIndices,
 		TotalStakeIndices:           validatedData.TotalStakeIndices,
 		NonSignerStakeIndices:       nonSignerStakeIndices,
 	}
