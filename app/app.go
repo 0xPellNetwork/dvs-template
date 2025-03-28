@@ -12,7 +12,6 @@ import (
 	"github.com/0xPellNetwork/pelldvs-libs/log"
 	"github.com/0xPellNetwork/pelldvs/config"
 	dbm "github.com/cosmos/cosmos-db"
-	cosmosreflection "github.com/cosmos/cosmos-sdk/client/grpc/reflection"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/std"
@@ -25,6 +24,7 @@ import (
 	dvsappcfg "github.com/0xPellNetwork/dvs-template/config"
 	sq "github.com/0xPellNetwork/dvs-template/dvs/squared"
 	"github.com/0xPellNetwork/dvs-template/dvs/squared/types"
+	cosmosreflection "github.com/cosmos/cosmos-sdk/client/grpc/reflection"
 )
 
 const (
@@ -130,13 +130,12 @@ func NewApp(
 	app.sqModule.RegisterInterfaces(app.interfaceRegistry)
 	app.sqModule.RegisterGRPCServer(app.grpcServer)
 
-	//app.BaseApp.RegisterGRPCServer(app.grpcServer)
-	reflection.Register(app.grpcServer)
-
 	cosmosreflection.RegisterReflectionServiceServer(
 		app.grpcServer,
 		cosmosreflection.NewReflectionServiceServer(interfaceRegistry),
 	)
+
+	reflection.Register(app.grpcServer)
 
 	return app
 }
@@ -150,7 +149,7 @@ func (app *App) Start() error {
 	}
 
 	// start query http server
-	if err := app.setupQueryHTTPServer(
+	if err := app.setupHTTPServer(
 		app.dvsAppConfig.QueryRPCServerAddress,
 		app.dvsAppConfig.QueryHTTPServerAddress,
 	); err != nil {
@@ -159,7 +158,7 @@ func (app *App) Start() error {
 	}
 
 	// start query grpc server
-	if err := app.setupQueryGRPCServer(); err != nil {
+	if err := app.setupGRPCServer(); err != nil {
 		app.logger.Error("Failed to setup gRPC server", "error", err)
 		return err
 	}
@@ -171,7 +170,7 @@ func (app *App) Start() error {
 }
 
 // setup gGRPC server and start listening
-func (app *App) setupQueryGRPCServer() error {
+func (app *App) setupGRPCServer() error {
 	// create gRPC server
 	go func() {
 		lis, err := net.Listen("tcp", app.dvsAppConfig.QueryRPCServerAddress)
@@ -188,7 +187,7 @@ func (app *App) setupQueryGRPCServer() error {
 	return nil
 }
 
-func (app *App) setupQueryHTTPServer(grpcAddr, httpAddr string) error {
+func (app *App) setupHTTPServer(grpcAddr, httpAddr string) error {
 	ctx := context.Background()
 	mux := runtime.NewServeMux()
 

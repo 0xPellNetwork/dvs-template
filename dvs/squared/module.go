@@ -2,7 +2,6 @@ package dvs
 
 import (
 	storetypes "cosmossdk.io/store/types"
-	"github.com/0xPellNetwork/pellapp-sdk/baseapp"
 	sdkservice "github.com/0xPellNetwork/pellapp-sdk/service"
 	"github.com/0xPellNetwork/pelldvs-libs/log"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -67,10 +66,6 @@ func (am *AppModule) RegisterGRPCServer(srv *grpc.Server) {
 	//types.RegisterSquaredMsgServerServer(srv, am.server)
 	types.RegisterQueryServer(srv, am.queryServer)
 
-}
-
-func (am *AppModule) RegisterQueryServices(router *baseapp.GRPCQueryRouter) {
-	types.RegisterQueryServer(router, am.queryServer)
 }
 
 func (am *AppModule) RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
