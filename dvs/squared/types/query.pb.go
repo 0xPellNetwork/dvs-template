@@ -6,6 +6,7 @@ package types
 import (
 	context "context"
 	fmt "fmt"
+	_ "github.com/cosmos/cosmos-proto"
 	grpc1 "github.com/cosmos/gogoproto/grpc"
 	proto "github.com/cosmos/gogoproto/proto"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
@@ -28,25 +29,23 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// GetDataRequest is the request for getting data
-type GetDataRequest struct {
-	Key    string       `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
-	Result string       `protobuf:"bytes,2,opt,name=result,proto3" json:"result,omitempty"`
-	Task   *TaskRequest `protobuf:"bytes,3,opt,name=task,proto3" json:"task,omitempty"`
+// QueryTaskRequest is the request for getting data
+type QueryTaskRequest struct {
+	TaskIndex string `protobuf:"bytes,1,opt,name=task_index,json=taskIndex,proto3" json:"task_index,omitempty"`
 }
 
-func (m *GetDataRequest) Reset()         { *m = GetDataRequest{} }
-func (m *GetDataRequest) String() string { return proto.CompactTextString(m) }
-func (*GetDataRequest) ProtoMessage()    {}
-func (*GetDataRequest) Descriptor() ([]byte, []int) {
+func (m *QueryTaskRequest) Reset()         { *m = QueryTaskRequest{} }
+func (m *QueryTaskRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryTaskRequest) ProtoMessage()    {}
+func (*QueryTaskRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_6ee3f4a2bde4c539, []int{0}
 }
-func (m *GetDataRequest) XXX_Unmarshal(b []byte) error {
+func (m *QueryTaskRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *GetDataRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryTaskRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_GetDataRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryTaskRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -56,56 +55,42 @@ func (m *GetDataRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, erro
 		return b[:n], nil
 	}
 }
-func (m *GetDataRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetDataRequest.Merge(m, src)
+func (m *QueryTaskRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryTaskRequest.Merge(m, src)
 }
-func (m *GetDataRequest) XXX_Size() int {
+func (m *QueryTaskRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *GetDataRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_GetDataRequest.DiscardUnknown(m)
+func (m *QueryTaskRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryTaskRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_GetDataRequest proto.InternalMessageInfo
+var xxx_messageInfo_QueryTaskRequest proto.InternalMessageInfo
 
-func (m *GetDataRequest) GetKey() string {
+func (m *QueryTaskRequest) GetTaskIndex() string {
 	if m != nil {
-		return m.Key
+		return m.TaskIndex
 	}
 	return ""
 }
 
-func (m *GetDataRequest) GetResult() string {
-	if m != nil {
-		return m.Result
-	}
-	return ""
-}
-
-func (m *GetDataRequest) GetTask() *TaskRequest {
-	if m != nil {
-		return m.Task
-	}
-	return nil
-}
-
-// GetDataResponse is the response for getting data
-type GetDataResponse struct {
+// QueryTaskResponse is the response for getting data
+type QueryTaskResponse struct {
 	Value *TaskResult `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`
 }
 
-func (m *GetDataResponse) Reset()         { *m = GetDataResponse{} }
-func (m *GetDataResponse) String() string { return proto.CompactTextString(m) }
-func (*GetDataResponse) ProtoMessage()    {}
-func (*GetDataResponse) Descriptor() ([]byte, []int) {
+func (m *QueryTaskResponse) Reset()         { *m = QueryTaskResponse{} }
+func (m *QueryTaskResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryTaskResponse) ProtoMessage()    {}
+func (*QueryTaskResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_6ee3f4a2bde4c539, []int{1}
 }
-func (m *GetDataResponse) XXX_Unmarshal(b []byte) error {
+func (m *QueryTaskResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *GetDataResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryTaskResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_GetDataResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryTaskResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -115,43 +100,43 @@ func (m *GetDataResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, err
 		return b[:n], nil
 	}
 }
-func (m *GetDataResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetDataResponse.Merge(m, src)
+func (m *QueryTaskResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryTaskResponse.Merge(m, src)
 }
-func (m *GetDataResponse) XXX_Size() int {
+func (m *QueryTaskResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *GetDataResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_GetDataResponse.DiscardUnknown(m)
+func (m *QueryTaskResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryTaskResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_GetDataResponse proto.InternalMessageInfo
+var xxx_messageInfo_QueryTaskResponse proto.InternalMessageInfo
 
-func (m *GetDataResponse) GetValue() *TaskResult {
+func (m *QueryTaskResponse) GetValue() *TaskResult {
 	if m != nil {
 		return m.Value
 	}
 	return nil
 }
 
-// ListDataRequest is the request for listing data
-type ListDataRequest struct {
-	Keys  string `protobuf:"bytes,1,opt,name=keys,proto3" json:"keys,omitempty"`
-	Limit int32  `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
+// QueryTasksRequest is the request for listing data
+type QueryTasksRequest struct {
+	TaskIndexes string `protobuf:"bytes,1,opt,name=task_indexes,json=taskIndexes,proto3" json:"task_indexes,omitempty"`
+	Limit       int32  `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
 }
 
-func (m *ListDataRequest) Reset()         { *m = ListDataRequest{} }
-func (m *ListDataRequest) String() string { return proto.CompactTextString(m) }
-func (*ListDataRequest) ProtoMessage()    {}
-func (*ListDataRequest) Descriptor() ([]byte, []int) {
+func (m *QueryTasksRequest) Reset()         { *m = QueryTasksRequest{} }
+func (m *QueryTasksRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryTasksRequest) ProtoMessage()    {}
+func (*QueryTasksRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_6ee3f4a2bde4c539, []int{2}
 }
-func (m *ListDataRequest) XXX_Unmarshal(b []byte) error {
+func (m *QueryTasksRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *ListDataRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryTasksRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_ListDataRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryTasksRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -161,49 +146,49 @@ func (m *ListDataRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, err
 		return b[:n], nil
 	}
 }
-func (m *ListDataRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ListDataRequest.Merge(m, src)
+func (m *QueryTasksRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryTasksRequest.Merge(m, src)
 }
-func (m *ListDataRequest) XXX_Size() int {
+func (m *QueryTasksRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *ListDataRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_ListDataRequest.DiscardUnknown(m)
+func (m *QueryTasksRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryTasksRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_ListDataRequest proto.InternalMessageInfo
+var xxx_messageInfo_QueryTasksRequest proto.InternalMessageInfo
 
-func (m *ListDataRequest) GetKeys() string {
+func (m *QueryTasksRequest) GetTaskIndexes() string {
 	if m != nil {
-		return m.Keys
+		return m.TaskIndexes
 	}
 	return ""
 }
 
-func (m *ListDataRequest) GetLimit() int32 {
+func (m *QueryTasksRequest) GetLimit() int32 {
 	if m != nil {
 		return m.Limit
 	}
 	return 0
 }
 
-// ListDataResponse is the response for listing data
-type ListDataResponse struct {
-	Items []*ListItem `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+// QueryTasksResponse is the response for listing data
+type QueryTasksResponse struct {
+	Items []*TaskResult `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
 }
 
-func (m *ListDataResponse) Reset()         { *m = ListDataResponse{} }
-func (m *ListDataResponse) String() string { return proto.CompactTextString(m) }
-func (*ListDataResponse) ProtoMessage()    {}
-func (*ListDataResponse) Descriptor() ([]byte, []int) {
+func (m *QueryTasksResponse) Reset()         { *m = QueryTasksResponse{} }
+func (m *QueryTasksResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryTasksResponse) ProtoMessage()    {}
+func (*QueryTasksResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_6ee3f4a2bde4c539, []int{3}
 }
-func (m *ListDataResponse) XXX_Unmarshal(b []byte) error {
+func (m *QueryTasksResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *ListDataResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryTasksResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_ListDataResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryTasksResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -213,116 +198,61 @@ func (m *ListDataResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, er
 		return b[:n], nil
 	}
 }
-func (m *ListDataResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ListDataResponse.Merge(m, src)
+func (m *QueryTasksResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryTasksResponse.Merge(m, src)
 }
-func (m *ListDataResponse) XXX_Size() int {
+func (m *QueryTasksResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *ListDataResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_ListDataResponse.DiscardUnknown(m)
+func (m *QueryTasksResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryTasksResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_ListDataResponse proto.InternalMessageInfo
+var xxx_messageInfo_QueryTasksResponse proto.InternalMessageInfo
 
-func (m *ListDataResponse) GetItems() []*ListItem {
+func (m *QueryTasksResponse) GetItems() []*TaskResult {
 	if m != nil {
 		return m.Items
 	}
 	return nil
 }
 
-// KeyValue represents a key-value pair
-type ListItem struct {
-	Key   string      `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
-	Value *TaskResult `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
-}
-
-func (m *ListItem) Reset()         { *m = ListItem{} }
-func (m *ListItem) String() string { return proto.CompactTextString(m) }
-func (*ListItem) ProtoMessage()    {}
-func (*ListItem) Descriptor() ([]byte, []int) {
-	return fileDescriptor_6ee3f4a2bde4c539, []int{4}
-}
-func (m *ListItem) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *ListItem) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_ListItem.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *ListItem) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ListItem.Merge(m, src)
-}
-func (m *ListItem) XXX_Size() int {
-	return m.Size()
-}
-func (m *ListItem) XXX_DiscardUnknown() {
-	xxx_messageInfo_ListItem.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_ListItem proto.InternalMessageInfo
-
-func (m *ListItem) GetKey() string {
-	if m != nil {
-		return m.Key
-	}
-	return ""
-}
-
-func (m *ListItem) GetValue() *TaskResult {
-	if m != nil {
-		return m.Value
-	}
-	return nil
-}
-
 func init() {
-	proto.RegisterType((*GetDataRequest)(nil), "dvs.squared.GetDataRequest")
-	proto.RegisterType((*GetDataResponse)(nil), "dvs.squared.GetDataResponse")
-	proto.RegisterType((*ListDataRequest)(nil), "dvs.squared.ListDataRequest")
-	proto.RegisterType((*ListDataResponse)(nil), "dvs.squared.ListDataResponse")
-	proto.RegisterType((*ListItem)(nil), "dvs.squared.ListItem")
+	proto.RegisterType((*QueryTaskRequest)(nil), "dvs.squared.QueryTaskRequest")
+	proto.RegisterType((*QueryTaskResponse)(nil), "dvs.squared.QueryTaskResponse")
+	proto.RegisterType((*QueryTasksRequest)(nil), "dvs.squared.QueryTasksRequest")
+	proto.RegisterType((*QueryTasksResponse)(nil), "dvs.squared.QueryTasksResponse")
 }
 
 func init() { proto.RegisterFile("dvs/squared/query.proto", fileDescriptor_6ee3f4a2bde4c539) }
 
 var fileDescriptor_6ee3f4a2bde4c539 = []byte{
-	// 404 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x92, 0x4f, 0x4b, 0xfb, 0x30,
-	0x18, 0xc7, 0xd7, 0x6d, 0xdd, 0xef, 0x67, 0x0a, 0xfb, 0x13, 0x74, 0x2b, 0x73, 0x96, 0xd1, 0xd3,
-	0x60, 0xda, 0x62, 0x3d, 0x7a, 0x50, 0x44, 0x10, 0xd1, 0x8b, 0xc5, 0x93, 0x78, 0x30, 0xb2, 0x30,
-	0x4b, 0xbb, 0xb6, 0x6b, 0xd2, 0x42, 0x91, 0x5d, 0x7c, 0x05, 0x82, 0x2f, 0x4a, 0x8f, 0x03, 0x2f,
-	0x1e, 0x65, 0xf3, 0x85, 0x48, 0x92, 0x3a, 0x57, 0x9c, 0xe0, 0x2d, 0xc9, 0xf3, 0x7d, 0xbe, 0x9f,
-	0xef, 0x93, 0x04, 0xb4, 0x06, 0x09, 0x31, 0xc9, 0x38, 0x46, 0x11, 0x1e, 0x98, 0xe3, 0x18, 0x47,
-	0xa9, 0x11, 0x46, 0x01, 0x0d, 0xa0, 0x32, 0x48, 0x88, 0x91, 0x15, 0xda, 0x9d, 0x61, 0x10, 0x0c,
-	0x3d, 0x6c, 0xa2, 0xd0, 0x31, 0x91, 0xef, 0x07, 0x14, 0x51, 0x27, 0xf0, 0x89, 0x90, 0xb6, 0x9b,
-	0xcb, 0x1e, 0x14, 0x11, 0x57, 0x9c, 0xeb, 0x77, 0xa0, 0x7a, 0x82, 0xe9, 0x31, 0xa2, 0xc8, 0xc6,
-	0xe3, 0x18, 0x13, 0x0a, 0xeb, 0xa0, 0xe4, 0xe2, 0x54, 0x95, 0xba, 0x52, 0x6f, 0xcd, 0x66, 0x4b,
-	0xd8, 0x04, 0x95, 0x08, 0x93, 0xd8, 0xa3, 0x6a, 0x91, 0x1f, 0x66, 0x3b, 0xb8, 0x0d, 0xca, 0xcc,
-	0x49, 0x2d, 0x75, 0xa5, 0x9e, 0x62, 0xa9, 0xc6, 0x52, 0x1a, 0xe3, 0x12, 0x11, 0x37, 0x73, 0xb4,
-	0xb9, 0x4a, 0x3f, 0x04, 0xb5, 0x05, 0x89, 0x84, 0x81, 0x4f, 0x30, 0xdc, 0x01, 0x72, 0x82, 0xbc,
-	0x18, 0x73, 0x98, 0x62, 0xb5, 0x56, 0x38, 0x30, 0x90, 0x2d, 0x54, 0xfa, 0x3e, 0xa8, 0x9d, 0x3b,
-	0x24, 0x17, 0x16, 0x82, 0xb2, 0x8b, 0x53, 0x92, 0xa5, 0xe5, 0x6b, 0xb8, 0x0e, 0x64, 0xcf, 0x19,
-	0x39, 0x22, 0xad, 0x6c, 0x8b, 0x8d, 0x7e, 0x00, 0xea, 0xdf, 0xcd, 0x19, 0xbf, 0x0f, 0x64, 0x87,
-	0xe2, 0x11, 0x6b, 0x2f, 0xf5, 0x14, 0x6b, 0x23, 0xc7, 0x67, 0xea, 0x53, 0x8a, 0x47, 0xb6, 0xd0,
-	0xe8, 0x67, 0xe0, 0xff, 0xd7, 0xd1, 0x8a, 0x3b, 0x5a, 0x8c, 0x52, 0xfc, 0xcb, 0x28, 0xd6, 0xb3,
-	0x04, 0xe4, 0x0b, 0xf6, 0x92, 0xf0, 0x1a, 0xfc, 0xcb, 0xae, 0x05, 0x6e, 0xe6, 0x9a, 0xf2, 0xcf,
-	0xd2, 0xee, 0xac, 0x2e, 0x8a, 0x49, 0xf4, 0xe6, 0xc3, 0xeb, 0xc7, 0x53, 0xb1, 0x0e, 0xab, 0x66,
-	0xb2, 0x6b, 0xb2, 0xbc, 0xe6, 0xbd, 0x8b, 0xd3, 0x09, 0xbc, 0x11, 0xa1, 0xb9, 0x7d, 0xe7, 0xc7,
-	0x78, 0xcb, 0xfe, 0x5b, 0xbf, 0x54, 0x33, 0x40, 0x8b, 0x03, 0x1a, 0xb0, 0xc6, 0x00, 0x9e, 0x43,
-	0x28, 0x07, 0x90, 0xc9, 0x51, 0xff, 0x65, 0xa6, 0x49, 0xd3, 0x99, 0x26, 0xbd, 0xcf, 0x34, 0xe9,
-	0x71, 0xae, 0x15, 0xa6, 0x73, 0xad, 0xf0, 0x36, 0xd7, 0x0a, 0x57, 0x8d, 0xdc, 0x97, 0x4b, 0x43,
-	0x4c, 0x6e, 0x2b, 0xfc, 0xd3, 0xed, 0x7d, 0x06, 0x00, 0x00, 0xff, 0xff, 0x1a, 0x70, 0x1a, 0x09,
-	0xd2, 0x02, 0x00, 0x00,
+	// 390 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x7c, 0x92, 0xc1, 0x4e, 0xea, 0x40,
+	0x14, 0x86, 0x29, 0xf7, 0xf6, 0x26, 0x0c, 0x77, 0x71, 0x99, 0x5c, 0x2d, 0x56, 0xa9, 0xd8, 0xb8,
+	0x20, 0x1a, 0xda, 0x80, 0x3b, 0x97, 0xb8, 0x72, 0xa1, 0x89, 0x8d, 0x2b, 0x37, 0x64, 0xb0, 0x93,
+	0xa6, 0xa1, 0x74, 0x5a, 0xce, 0xb4, 0x91, 0x18, 0x37, 0x3e, 0x81, 0x89, 0xaf, 0xe2, 0x43, 0x18,
+	0x57, 0x24, 0x6e, 0x5c, 0x1a, 0xea, 0x83, 0x98, 0x4e, 0x8b, 0x14, 0x23, 0x2c, 0xe7, 0xfc, 0xe7,
+	0xfc, 0xff, 0x37, 0x67, 0x06, 0x29, 0x76, 0x0c, 0x26, 0x84, 0x11, 0x19, 0x53, 0xdb, 0x0c, 0x23,
+	0x3a, 0x9e, 0x18, 0xc1, 0x98, 0x71, 0x86, 0xab, 0x76, 0x0c, 0x46, 0x2e, 0xa8, 0x5b, 0xd7, 0x0c,
+	0x46, 0x0c, 0xfa, 0x42, 0x32, 0xb3, 0x43, 0xd6, 0xa7, 0x6e, 0x16, 0x0d, 0x38, 0x81, 0x61, 0x5e,
+	0xdf, 0x71, 0x18, 0x73, 0x3c, 0x6a, 0x92, 0xc0, 0x35, 0x89, 0xef, 0x33, 0x4e, 0xb8, 0xcb, 0xfc,
+	0x7c, 0x4a, 0x3f, 0x47, 0xff, 0x2e, 0xd2, 0xb0, 0x4b, 0x02, 0x43, 0x8b, 0x86, 0x11, 0x05, 0x8e,
+	0x1b, 0x08, 0xa5, 0xf3, 0x7d, 0xd7, 0xb7, 0xe9, 0x4d, 0x5d, 0x6a, 0x4a, 0xad, 0x8a, 0x55, 0x49,
+	0x2b, 0xa7, 0x69, 0xe1, 0x78, 0xfb, 0xe5, 0xa9, 0xad, 0xe4, 0xd1, 0x03, 0x02, 0xd4, 0x88, 0x3b,
+	0x03, 0xca, 0x49, 0xc7, 0x38, 0x03, 0x47, 0xef, 0xa1, 0x5a, 0xc1, 0x0f, 0x02, 0xe6, 0x03, 0xc5,
+	0x6d, 0x24, 0xc7, 0xc4, 0x8b, 0xa8, 0xf0, 0xaa, 0x76, 0x15, 0xa3, 0x70, 0x25, 0x23, 0xef, 0x8c,
+	0x3c, 0x6e, 0x65, 0x5d, 0xba, 0x5b, 0xf0, 0x80, 0x39, 0xd4, 0x1e, 0xfa, 0xbb, 0x80, 0xa2, 0x90,
+	0x63, 0x55, 0xbf, 0xb0, 0x28, 0xe0, 0xff, 0x48, 0xf6, 0xdc, 0x91, 0xcb, 0xeb, 0xe5, 0xa6, 0xd4,
+	0x92, 0xad, 0xec, 0xb0, 0x1e, 0xf7, 0x04, 0xe1, 0x62, 0xd4, 0x82, 0xd7, 0xe5, 0x74, 0x94, 0x86,
+	0xfc, 0x5a, 0xcb, 0x2b, 0xba, 0xba, 0x89, 0x84, 0x64, 0xe1, 0x82, 0x43, 0xf4, 0x3b, 0x95, 0x71,
+	0x63, 0x69, 0xe2, 0xfb, 0x82, 0x55, 0x6d, 0x95, 0x9c, 0xe5, 0xeb, 0x07, 0xf7, 0xaf, 0x1f, 0x8f,
+	0xe5, 0x7d, 0xac, 0x9b, 0xc5, 0x37, 0x8d, 0x3b, 0xe2, 0x59, 0xc1, 0xbc, 0x5d, 0x2c, 0xe2, 0x0e,
+	0x3b, 0x48, 0x16, 0xf0, 0x78, 0x85, 0xe9, 0x7c, 0x81, 0xea, 0xee, 0x4a, 0x3d, 0x4f, 0x6d, 0x88,
+	0x54, 0x05, 0x6f, 0xfc, 0x98, 0xda, 0x3b, 0x7c, 0x9e, 0x69, 0xd2, 0x74, 0xa6, 0x49, 0xef, 0x33,
+	0x4d, 0x7a, 0x48, 0xb4, 0xd2, 0x34, 0xd1, 0x4a, 0x6f, 0x89, 0x56, 0xba, 0xaa, 0x2d, 0xfd, 0xbc,
+	0x49, 0x40, 0x61, 0xf0, 0x47, 0xfc, 0xae, 0xa3, 0xcf, 0x00, 0x00, 0x00, 0xff, 0xff, 0xbf, 0x4d,
+	0x2c, 0xb9, 0xd6, 0x02, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -337,10 +267,10 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
-	// GetData retrieves data for a given key
-	GetData(ctx context.Context, in *GetDataRequest, opts ...grpc.CallOption) (*GetDataResponse, error)
-	// ListData lists all data with a list of keys like task-1,task-2,task-3,task-4
-	ListData(ctx context.Context, in *ListDataRequest, opts ...grpc.CallOption) (*ListDataResponse, error)
+	// Task retrieves data for a given key
+	Task(ctx context.Context, in *QueryTaskRequest, opts ...grpc.CallOption) (*QueryTaskResponse, error)
+	// Tasks lists all data with a list of keys like 1,2,3,4,
+	Tasks(ctx context.Context, in *QueryTasksRequest, opts ...grpc.CallOption) (*QueryTasksResponse, error)
 }
 
 type queryClient struct {
@@ -351,18 +281,18 @@ func NewQueryClient(cc grpc1.ClientConn) QueryClient {
 	return &queryClient{cc}
 }
 
-func (c *queryClient) GetData(ctx context.Context, in *GetDataRequest, opts ...grpc.CallOption) (*GetDataResponse, error) {
-	out := new(GetDataResponse)
-	err := c.cc.Invoke(ctx, "/dvs.squared.Query/GetData", in, out, opts...)
+func (c *queryClient) Task(ctx context.Context, in *QueryTaskRequest, opts ...grpc.CallOption) (*QueryTaskResponse, error) {
+	out := new(QueryTaskResponse)
+	err := c.cc.Invoke(ctx, "/dvs.squared.Query/Task", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *queryClient) ListData(ctx context.Context, in *ListDataRequest, opts ...grpc.CallOption) (*ListDataResponse, error) {
-	out := new(ListDataResponse)
-	err := c.cc.Invoke(ctx, "/dvs.squared.Query/ListData", in, out, opts...)
+func (c *queryClient) Tasks(ctx context.Context, in *QueryTasksRequest, opts ...grpc.CallOption) (*QueryTasksResponse, error) {
+	out := new(QueryTasksResponse)
+	err := c.cc.Invoke(ctx, "/dvs.squared.Query/Tasks", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -371,59 +301,59 @@ func (c *queryClient) ListData(ctx context.Context, in *ListDataRequest, opts ..
 
 // QueryServer is the server API for Query service.
 type QueryServer interface {
-	// GetData retrieves data for a given key
-	GetData(context.Context, *GetDataRequest) (*GetDataResponse, error)
-	// ListData lists all data with a list of keys like task-1,task-2,task-3,task-4
-	ListData(context.Context, *ListDataRequest) (*ListDataResponse, error)
+	// Task retrieves data for a given key
+	Task(context.Context, *QueryTaskRequest) (*QueryTaskResponse, error)
+	// Tasks lists all data with a list of keys like 1,2,3,4,
+	Tasks(context.Context, *QueryTasksRequest) (*QueryTasksResponse, error)
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
 type UnimplementedQueryServer struct {
 }
 
-func (*UnimplementedQueryServer) GetData(ctx context.Context, req *GetDataRequest) (*GetDataResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetData not implemented")
+func (*UnimplementedQueryServer) Task(ctx context.Context, req *QueryTaskRequest) (*QueryTaskResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Task not implemented")
 }
-func (*UnimplementedQueryServer) ListData(ctx context.Context, req *ListDataRequest) (*ListDataResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListData not implemented")
+func (*UnimplementedQueryServer) Tasks(ctx context.Context, req *QueryTasksRequest) (*QueryTasksResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Tasks not implemented")
 }
 
 func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
 	s.RegisterService(&_Query_serviceDesc, srv)
 }
 
-func _Query_GetData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetDataRequest)
+func _Query_Task_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryTaskRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServer).GetData(ctx, in)
+		return srv.(QueryServer).Task(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/dvs.squared.Query/GetData",
+		FullMethod: "/dvs.squared.Query/Task",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).GetData(ctx, req.(*GetDataRequest))
+		return srv.(QueryServer).Task(ctx, req.(*QueryTaskRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Query_ListData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListDataRequest)
+func _Query_Tasks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryTasksRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServer).ListData(ctx, in)
+		return srv.(QueryServer).Tasks(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/dvs.squared.Query/ListData",
+		FullMethod: "/dvs.squared.Query/Tasks",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).ListData(ctx, req.(*ListDataRequest))
+		return srv.(QueryServer).Tasks(ctx, req.(*QueryTasksRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -433,19 +363,19 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*QueryServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetData",
-			Handler:    _Query_GetData_Handler,
+			MethodName: "Task",
+			Handler:    _Query_Task_Handler,
 		},
 		{
-			MethodName: "ListData",
-			Handler:    _Query_ListData_Handler,
+			MethodName: "Tasks",
+			Handler:    _Query_Tasks_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "dvs/squared/query.proto",
 }
 
-func (m *GetDataRequest) Marshal() (dAtA []byte, err error) {
+func (m *QueryTaskRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -455,46 +385,27 @@ func (m *GetDataRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *GetDataRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryTaskRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *GetDataRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryTaskRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if m.Task != nil {
-		{
-			size, err := m.Task.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintQuery(dAtA, i, uint64(size))
-		}
-		i--
-		dAtA[i] = 0x1a
-	}
-	if len(m.Result) > 0 {
-		i -= len(m.Result)
-		copy(dAtA[i:], m.Result)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.Result)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.Key) > 0 {
-		i -= len(m.Key)
-		copy(dAtA[i:], m.Key)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.Key)))
+	if len(m.TaskIndex) > 0 {
+		i -= len(m.TaskIndex)
+		copy(dAtA[i:], m.TaskIndex)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.TaskIndex)))
 		i--
 		dAtA[i] = 0xa
 	}
 	return len(dAtA) - i, nil
 }
 
-func (m *GetDataResponse) Marshal() (dAtA []byte, err error) {
+func (m *QueryTaskResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -504,12 +415,12 @@ func (m *GetDataResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *GetDataResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryTaskResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *GetDataResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryTaskResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -529,7 +440,7 @@ func (m *GetDataResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *ListDataRequest) Marshal() (dAtA []byte, err error) {
+func (m *QueryTasksRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -539,12 +450,12 @@ func (m *ListDataRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *ListDataRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryTasksRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *ListDataRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryTasksRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -554,17 +465,17 @@ func (m *ListDataRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x10
 	}
-	if len(m.Keys) > 0 {
-		i -= len(m.Keys)
-		copy(dAtA[i:], m.Keys)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.Keys)))
+	if len(m.TaskIndexes) > 0 {
+		i -= len(m.TaskIndexes)
+		copy(dAtA[i:], m.TaskIndexes)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.TaskIndexes)))
 		i--
 		dAtA[i] = 0xa
 	}
 	return len(dAtA) - i, nil
 }
 
-func (m *ListDataResponse) Marshal() (dAtA []byte, err error) {
+func (m *QueryTasksResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -574,12 +485,12 @@ func (m *ListDataResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *ListDataResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryTasksResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *ListDataResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryTasksResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -601,48 +512,6 @@ func (m *ListDataResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *ListItem) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *ListItem) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *ListItem) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.Value != nil {
-		{
-			size, err := m.Value.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintQuery(dAtA, i, uint64(size))
-		}
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.Key) > 0 {
-		i -= len(m.Key)
-		copy(dAtA[i:], m.Key)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.Key)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
 func encodeVarintQuery(dAtA []byte, offset int, v uint64) int {
 	offset -= sovQuery(v)
 	base := offset
@@ -654,28 +523,20 @@ func encodeVarintQuery(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *GetDataRequest) Size() (n int) {
+func (m *QueryTaskRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = len(m.Key)
+	l = len(m.TaskIndex)
 	if l > 0 {
-		n += 1 + l + sovQuery(uint64(l))
-	}
-	l = len(m.Result)
-	if l > 0 {
-		n += 1 + l + sovQuery(uint64(l))
-	}
-	if m.Task != nil {
-		l = m.Task.Size()
 		n += 1 + l + sovQuery(uint64(l))
 	}
 	return n
 }
 
-func (m *GetDataResponse) Size() (n int) {
+func (m *QueryTaskResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -688,13 +549,13 @@ func (m *GetDataResponse) Size() (n int) {
 	return n
 }
 
-func (m *ListDataRequest) Size() (n int) {
+func (m *QueryTasksRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = len(m.Keys)
+	l = len(m.TaskIndexes)
 	if l > 0 {
 		n += 1 + l + sovQuery(uint64(l))
 	}
@@ -704,7 +565,7 @@ func (m *ListDataRequest) Size() (n int) {
 	return n
 }
 
-func (m *ListDataResponse) Size() (n int) {
+func (m *QueryTasksResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -719,30 +580,13 @@ func (m *ListDataResponse) Size() (n int) {
 	return n
 }
 
-func (m *ListItem) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.Key)
-	if l > 0 {
-		n += 1 + l + sovQuery(uint64(l))
-	}
-	if m.Value != nil {
-		l = m.Value.Size()
-		n += 1 + l + sovQuery(uint64(l))
-	}
-	return n
-}
-
 func sovQuery(x uint64) (n int) {
 	return (math_bits.Len64(x|1) + 6) / 7
 }
 func sozQuery(x uint64) (n int) {
 	return sovQuery(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *GetDataRequest) Unmarshal(dAtA []byte) error {
+func (m *QueryTaskRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -765,15 +609,15 @@ func (m *GetDataRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: GetDataRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryTaskRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: GetDataRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryTaskRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Key", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field TaskIndex", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -801,75 +645,7 @@ func (m *GetDataRequest) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Key = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Result", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Result = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Task", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if m.Task == nil {
-				m.Task = &TaskRequest{}
-			}
-			if err := m.Task.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
+			m.TaskIndex = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -892,7 +668,7 @@ func (m *GetDataRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *GetDataResponse) Unmarshal(dAtA []byte) error {
+func (m *QueryTaskResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -915,10 +691,10 @@ func (m *GetDataResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: GetDataResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryTaskResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: GetDataResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryTaskResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -978,7 +754,7 @@ func (m *GetDataResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *ListDataRequest) Unmarshal(dAtA []byte) error {
+func (m *QueryTasksRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1001,15 +777,15 @@ func (m *ListDataRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: ListDataRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryTasksRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: ListDataRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryTasksRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Keys", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field TaskIndexes", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -1037,7 +813,7 @@ func (m *ListDataRequest) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Keys = string(dAtA[iNdEx:postIndex])
+			m.TaskIndexes = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 2:
 			if wireType != 0 {
@@ -1079,7 +855,7 @@ func (m *ListDataRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *ListDataResponse) Unmarshal(dAtA []byte) error {
+func (m *QueryTasksResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1102,10 +878,10 @@ func (m *ListDataResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: ListDataResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryTasksResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: ListDataResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryTasksResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -1137,126 +913,8 @@ func (m *ListDataResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Items = append(m.Items, &ListItem{})
+			m.Items = append(m.Items, &TaskResult{})
 			if err := m.Items[len(m.Items)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *ListItem) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: ListItem: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: ListItem: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Key", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Key = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Value", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if m.Value == nil {
-				m.Value = &TaskResult{}
-			}
-			if err := m.Value.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

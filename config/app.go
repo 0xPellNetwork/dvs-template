@@ -9,7 +9,6 @@ import (
 const (
 	defaultQueryHTTPServerAddr = "0.0.0.0:8123"
 	defaultQueryGRPCServerAddr = "0.0.0.0:9123"
-	defaultQueryStoreKey       = "query"
 	defaultGatewayRPCURL       = "http://localhost:8949"
 )
 
@@ -19,7 +18,6 @@ type AppConfig struct {
 	QueryHTTPServerAddress     string           `json:"query_http_server_address"`
 	GatewayRPCClientURL        string           `json:"gateway_rpc_client_url"`
 	ChainServiceManagerAddress map[int64]string `json:"chain_service_manager_address"`
-	QueryStoreKey              string           `json:"query_store_key"`
 }
 
 // LoadAppConfig loads configuration from the specified path
@@ -49,10 +47,6 @@ func (ac *AppConfig) Finalize() {
 	}
 	if ac.GatewayRPCClientURL == "" {
 		ac.GatewayRPCClientURL = defaultGatewayRPCURL
-	}
-
-	if ac.QueryStoreKey == "" {
-		ac.QueryStoreKey = defaultQueryStoreKey
 	}
 
 	if ac.ChainServiceManagerAddress == nil {

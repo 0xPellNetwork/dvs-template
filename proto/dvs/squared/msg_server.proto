@@ -1,21 +1,19 @@
 syntax = "proto3";
 package dvs.squared;
 
-import "gogoproto/gogo.proto";
+import "amino/amino.proto";
 import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
-import "amino/amino.proto";
 import "dvs/squared/task.proto";
+import "gogoproto/gogo.proto";
 
 option go_package = "dvs/squared/types";
 
 service SquaredMsgServer {
-  rpc RequestNumberSquared(RequestNumberSquaredIn)
-      returns (RequestNumberSquaredOut) {}
+  rpc RequestNumberSquared(RequestNumberSquaredIn) returns (RequestNumberSquaredOut) {}
 
   // ResponseNumberSquared defines avsi logic processing
-  rpc DVSResponsHandler(RequestNumberSquaredIn)
-      returns (ResponseNumberSquaredOut) {}
+  rpc DVSResponsHandler(RequestNumberSquaredIn) returns (ResponseNumberSquaredOut) {}
 }
 
 // RequestNumberSquaredIn defines task request from task-dispatcher
@@ -29,11 +27,7 @@ message RequestNumberSquaredIn {
 message RequestNumberSquaredOut {
   option (cosmos_proto.implements_interface) = "cosmos.base.v1beta1.Msg";
   uint32 task_index = 1;
-  // Aggregated final price
-  string squared = 3 [
-    (gogoproto.customtype) = "cosmossdk.io/math.Int",
-    (gogoproto.nullable) = false
-  ];
+  string squared = 3;
 }
 
 message ResponseNumberSquaredOut {}

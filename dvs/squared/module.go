@@ -6,6 +6,7 @@ import (
 	sdkservice "github.com/0xPellNetwork/pellapp-sdk/service"
 	"github.com/0xPellNetwork/pelldvs-libs/log"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
+	"google.golang.org/grpc"
 
 	resulthandlers "github.com/0xPellNetwork/dvs-template/dvs/squared/result"
 	"github.com/0xPellNetwork/dvs-template/dvs/squared/server"
@@ -53,6 +54,7 @@ func (am *AppModule) RegisterServices(router *sdkservice.MsgRouter) {
 	configurator := router.GetConfigurator()
 	// register dvs-msg handler server
 	types.RegisterSquaredMsgServerServer(configurator, am.server)
+	types.RegisterQueryServer(configurator, am.queryServer)
 
 	// register dvs-msg result handler
 	configurator.RegisterResultMsgExtractor(
@@ -60,7 +62,14 @@ func (am *AppModule) RegisterServices(router *sdkservice.MsgRouter) {
 	)
 }
 
-func (am *AppModule) RegisterQueryServer(router *baseapp.GRPCQueryRouter) {
+func (am *AppModule) RegisterGRPCServer(srv *grpc.Server) {
+	// Register the module's gRPC server
+	//types.RegisterSquaredMsgServerServer(srv, am.server)
+	types.RegisterQueryServer(srv, am.queryServer)
+
+}
+
+func (am *AppModule) RegisterQueryServices(router *baseapp.GRPCQueryRouter) {
 	types.RegisterQueryServer(router, am.queryServer)
 }
 

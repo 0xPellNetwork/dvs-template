@@ -46,6 +46,7 @@ function init_pelldvs_config {
   REGISTRY_ROUTER_ADDRESS=$(ssh emulator "cat /root/RegistryRouterAddress.json" | jq -r .address)
 
   update-config aggregator_rpc_url "$AGGREGATOR_RPC_URL"
+  sed -i -e 's,^laddr = "tcp://127.0.0.1:26657",laddr = "tcp://0.0.0.0:26657",' ~/.pelldvs/config/config.toml
 
   ## FIXME: don't use absolute path for key
   update-config operator_bls_private_key_store_path "$PELLDVS_HOME/keys/$OPERATOR_KEY_NAME.bls.key.json"

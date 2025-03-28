@@ -1,6 +1,8 @@
 package result
 
 import (
+	"math/big"
+
 	csquaringmanager "github.com/0xPellNetwork/dvs-contracts-template/bindings/IncredibleSquaringServiceManager"
 	"github.com/cosmos/gogoproto/proto"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -24,7 +26,7 @@ func (p *ResultHandler) GetData(msg proto.Message) ([]byte, error) {
 	if !ok {
 		return nil, nil
 	}
-	return []byte(r.Squared.String()), nil
+	return []byte(r.Squared), nil
 }
 
 // GetDigest computes the digest of the result message for signing
@@ -34,10 +36,12 @@ func (p *ResultHandler) GetDigest(msg proto.Message) ([]byte, error) {
 		return nil, nil
 	}
 
+	squared, _ := new(big.Int).SetString(r.Squared, 10)
+
 	// Construct the task response structure
 	taskResponse := &csquaringmanager.IIncredibleSquaringServiceManagerTaskResponse{
 		ReferenceTaskIndex: r.TaskIndex,
-		NumberSquared:      r.Squared.BigInt(),
+		NumberSquared:      squared,
 	}
 
 	// Compute the response digest

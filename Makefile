@@ -145,6 +145,23 @@ docker-operator-01-rerun:
 	make docker-operator-01-up
 	make docker-operator-01-logs
 
+docker-operator-02-up:
+	@cd docker && docker compose up operator02  -d
+
+docker-operator-02-down:
+	@cd docker && docker compose down operator02  -v
+
+docker-operator-02-logs:
+	@cd docker && docker compose logs operator02  -f
+
+docker-operator-02-shell:
+	@cd docker && docker compose exec -it operator02 bash
+
+docker-operator-02-rerun:
+	make docker-operator-02-down
+	make docker-operator-02-up
+	make docker-operator-02-logs
+
 docker-test:
 	@bash ./docker/scripts/test-in-host.sh
 

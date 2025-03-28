@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"cosmossdk.io/math"
-	sdktypes "github.com/0xPellNetwork/pellapp-sdk/types"
 
 	"github.com/0xPellNetwork/dvs-template/dvs/squared/types"
 	apptypes "github.com/0xPellNetwork/dvs-template/types"
@@ -24,20 +23,22 @@ func (s *Server) RequestNumberSquared(ctx context.Context, request *types.Reques
 	squaredInt := numInt * numInt
 	squared := math.NewInt(squaredInt)
 
-	pkgCtx := sdktypes.UnwrapContext(ctx)
-	store := pkgCtx.KVStore(s.storeKey)
-	if store == nil {
-		return nil, fmt.Errorf("store is not set")
-	}
+	//pkgCtx := sdktypes.UnwrapContext(ctx)
+	//store := pkgCtx.KVStore(s.storeKey)
+	//if store == nil {
+	//	return nil, fmt.Errorf("store is not set")
+	//}
 
 	key := []byte(apptypes.GenItemKey(request.Task.TaskIndex))
 	result := types.TaskResult{
-		TaskIndex:   request.Task.TaskIndex,
 		TaskRequest: request.Task,
-		PutOnChain:  false,
+		IsOnChain:   false,
 	}
 	bresult, _ := result.Marshal()
-	store.Set(key, bresult)
+	err := s.txMgr.Set(ctx, s.storeKey, key, bresult)
+	if err != nil {
+		return nil, fmt.Errorf("failed to set value in store: %w", err)
+	}
 	commitID, err := s.txMgr.Commit()
 	if err != nil {
 		return nil, fmt.Errorf("failed to commit: %w", err)
@@ -52,6 +53,6 @@ func (s *Server) RequestNumberSquared(ctx context.Context, request *types.Reques
 
 	return &types.RequestNumberSquaredOut{
 		TaskIndex: request.Task.TaskIndex,
-		Squared:   squared,
+		Squared:   squared.String(),
 	}, nil
 }

@@ -31,7 +31,7 @@ echo -e "\n\n";
 docker compose run --rm test;
 STATUS=$?;
 if [ "$STATUS" -ne 0 ]; then
-	docker compose logs aggregator -n 30;
+	docker compose logs dvs -n 30;
 	echo  -e "\n\n";
 	echo  -e "\n\n";
 	docker compose logs task-gateway -n 30;

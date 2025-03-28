@@ -117,10 +117,9 @@ func (s *Server) DVSResponsHandler(ctx context.Context, in *types.RequestNumberS
 
 	key := []byte(apptypes.GenItemKey(in.Task.TaskIndex))
 	result := types.TaskResult{
-		TaskIndex:   in.Task.TaskIndex,
 		TaskRequest: in.Task,
 		Result:      squared.String(),
-		PutOnChain:  true,
+		IsOnChain:   true,
 	}
 
 	bresult, err := result.Marshal()

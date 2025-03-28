@@ -12,10 +12,11 @@ import (
 	"github.com/0xPellNetwork/pelldvs-libs/log"
 	"github.com/0xPellNetwork/pelldvs/config"
 	dbm "github.com/cosmos/cosmos-db"
+	cosmosreflection "github.com/cosmos/cosmos-sdk/client/grpc/reflection"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/std"
-	sdktypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -46,7 +47,8 @@ type App struct {
 	interfaceRegistry codectypes.InterfaceRegistry
 	sqModule          *sq.AppModule
 
-	DvsNode *pelldvs.Node
+	DvsNode    *pelldvs.Node
+	grpcServer *grpc.Server
 }
 
 type DBContext struct {
@@ -90,7 +92,7 @@ func NewApp(
 
 	// Register standard types interfaces
 	std.RegisterInterfaces(app.interfaceRegistry)
-	sdktypes.RegisterInterfaces(app.interfaceRegistry)
+	authtypes.RegisterInterfaces(app.interfaceRegistry)
 
 	// Build dvs node
 	app.DvsNode, err = pelldvs.NewNode(app.logger, app, cfg)
@@ -98,10 +100,11 @@ func NewApp(
 		panic(err)
 	}
 
-	storeKey := storetypes.NewKVStoreKey(appConfig.QueryStoreKey)
-	app.logger.Info("Mounting query store", "key", storeKey.String())
+	sqMoudleStoreKey := storetypes.NewKVStoreKey(types.ModuleName)
+	app.logger.Info("Mounting query store", "key", sqMoudleStoreKey.String())
+
 	// mount the store
-	app.MountStore(storeKey, storetypes.StoreTypeIAVL)
+	app.MountStore(sqMoudleStoreKey, storetypes.StoreTypeIAVL)
 
 	// load latest version
 	app.logger.Info("Loading latest version")
@@ -116,17 +119,24 @@ func NewApp(
 	if err != nil {
 		panic(err)
 	}
+
 	txMgr := NewAppTxManager(app.BaseApp)
 	queryMgr := NewAppQueryManager(app.BaseApp)
+	app.grpcServer = grpc.NewServer()
 
 	// Register DVS module services
-	app.sqModule = sq.NewAppModule(app.logger, storeKey, txMgr, queryMgr)
+	app.sqModule = sq.NewAppModule(app.logger, sqMoudleStoreKey, txMgr, queryMgr)
 	app.sqModule.RegisterServices(app.GetMsgRouter())
 	app.sqModule.RegisterInterfaces(app.interfaceRegistry)
+	app.sqModule.RegisterGRPCServer(app.grpcServer)
 
-	app.BaseApp.SetGRPCQueryRouter(baseapp.NewGRPCQueryRouter())
-	app.BaseApp.GRPCQueryRouter().SetInterfaceRegistry(app.interfaceRegistry)
-	app.sqModule.RegisterQueryServer(app.BaseApp.GRPCQueryRouter())
+	//app.BaseApp.RegisterGRPCServer(app.grpcServer)
+	reflection.Register(app.grpcServer)
+
+	cosmosreflection.RegisterReflectionServiceServer(
+		app.grpcServer,
+		cosmosreflection.NewReflectionServiceServer(interfaceRegistry),
+	)
 
 	return app
 }
@@ -140,15 +150,16 @@ func (app *App) Start() error {
 	}
 
 	// start query http server
-	if err := app.SetupQueryHTTPServer(
+	if err := app.setupQueryHTTPServer(
 		app.dvsAppConfig.QueryRPCServerAddress,
-		app.dvsAppConfig.QueryHTTPServerAddress); err != nil {
+		app.dvsAppConfig.QueryHTTPServerAddress,
+	); err != nil {
 		app.logger.Error("Failed to setup HTTP server", "error", err)
 		return err
 	}
 
 	// start query grpc server
-	if err := app.SetupQueryGRPCServer(); err != nil {
+	if err := app.setupQueryGRPCServer(); err != nil {
 		app.logger.Error("Failed to setup gRPC server", "error", err)
 		return err
 	}
@@ -160,14 +171,8 @@ func (app *App) Start() error {
 }
 
 // setup gGRPC server and start listening
-func (app *App) SetupQueryGRPCServer() error {
+func (app *App) setupQueryGRPCServer() error {
 	// create gRPC server
-	grpcServer := grpc.NewServer()
-
-	reflection.Register(grpcServer)
-
-	app.BaseApp.RegisterGRPCServer(grpcServer)
-
 	go func() {
 		lis, err := net.Listen("tcp", app.dvsAppConfig.QueryRPCServerAddress)
 		if err != nil {
@@ -175,7 +180,7 @@ func (app *App) SetupQueryGRPCServer() error {
 			return
 		}
 		app.logger.Info("Starting Query gRPC server", "address", app.dvsAppConfig.QueryRPCServerAddress)
-		if err := grpcServer.Serve(lis); err != nil {
+		if err := app.grpcServer.Serve(lis); err != nil {
 			app.logger.Error("Failed to serve", "error", err)
 		}
 	}()
@@ -183,7 +188,7 @@ func (app *App) SetupQueryGRPCServer() error {
 	return nil
 }
 
-func (app *App) SetupQueryHTTPServer(grpcAddr, httpAddr string) error {
+func (app *App) setupQueryHTTPServer(grpcAddr, httpAddr string) error {
 	ctx := context.Background()
 	mux := runtime.NewServeMux()
 

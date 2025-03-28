@@ -33,17 +33,17 @@ func NewQuerier(logger log.Logger, storeKey storetypes.StoreKey, queryMgr apptyp
 	}, nil
 }
 
-// GetData retrieves data for a given key
-func (s *Querier) GetData(ctx context.Context, req *types.GetDataRequest) (*types.GetDataResponse, error) {
+// Task retrieves data for a given task index, like 0
+func (s *Querier) Task(ctx context.Context, req *types.QueryTaskRequest) (*types.QueryTaskResponse, error) {
 	s.logger.Info("GetData request",
-		"key", req.Key,
+		"key", req.TaskIndex,
 		"store_key", s.storeKey.String(),
 	)
-	key := []byte(req.Key)
+	key := []byte(req.TaskIndex)
 	value, _ := s.queryMgr.Get(ctx, s.storeKey, key)
 	if len(value) == 0 {
-		s.logger.Error("failed to get value from store", "key", req.Key)
-		return nil, fmt.Errorf("failed to get value for key: %s", req.Key)
+		s.logger.Error("failed to get value from store", "key", req.TaskIndex)
+		return nil, fmt.Errorf("failed to get value for key: %s", req.TaskIndex)
 	}
 
 	var result = types.TaskResult{}
@@ -53,23 +53,23 @@ func (s *Querier) GetData(ctx context.Context, req *types.GetDataRequest) (*type
 	}
 
 	s.logger.Info("GetData request",
-		"store-key-str", req.Key,
+		"store-key-str", req.TaskIndex,
 		"store-key-bytes", fmt.Sprintf("%+v", key),
 		"store-value-raw", result,
 		"store-value-bytes", value,
 	)
-	return &types.GetDataResponse{
+	return &types.QueryTaskResponse{
 		Value: &result,
 	}, nil
 }
 
-// ListData lists all data with a key list like "task-01,task-02,key3"
-func (s *Querier) ListData(ctx context.Context, req *types.ListDataRequest) (*types.ListDataResponse, error) {
-	s.logger.Debug("ListData request", "keys", req.Keys)
+// Tasks lists all data with a task indexs like "0,1,2,3,4"
+func (s *Querier) Tasks(ctx context.Context, req *types.QueryTasksRequest) (*types.QueryTasksResponse, error) {
+	s.logger.Debug("ListData request", "keys", req.TaskIndexes)
 
-	keyStrList := strings.Split(req.Keys, ",")
+	keyStrList := strings.Split(req.TaskIndexes, ",")
 	if len(keyStrList) == 0 {
-		return &types.ListDataResponse{}, nil
+		return &types.QueryTasksResponse{}, nil
 	}
 
 	// convert keyStrList to []byte
@@ -91,10 +91,10 @@ func (s *Querier) ListData(ctx context.Context, req *types.ListDataRequest) (*ty
 	}
 
 	if len(keyList) == 0 {
-		return &types.ListDataResponse{}, nil
+		return &types.QueryTasksResponse{}, nil
 	}
 
-	var result = types.ListDataResponse{}
+	var result = types.QueryTasksResponse{}
 	for _, key := range keyList {
 		if len(key) == 0 {
 			continue
@@ -117,10 +117,7 @@ func (s *Querier) ListData(ctx context.Context, req *types.ListDataRequest) (*ty
 			continue
 		}
 
-		result.Items = append(result.Items, &types.ListItem{
-			Key:   string(key),
-			Value: &taskResult,
-		})
+		result.Items = append(result.Items, &taskResult)
 	}
 	return &result, nil
 }

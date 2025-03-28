@@ -10,6 +10,10 @@ function load_defaults {
   export ETH_WS_URL=${ETH_WS_URL:-ws://eth:8545}
 }
 
+logt() {
+  echo "$(date '+%Y-%m-%d %H:%M:%S') $1"
+}
+
 function operator_healthcheck {
   set +e
   local container_name=$1
@@ -57,6 +61,16 @@ sleep ${TIMEOUT_FOR_TASK_PROCESS}
 TASK_NUMBER=$(cast call "$SERVICE_MANAGER_ADDRESS" "taskNumber()(uint32)" --private-key "$ADMIN_KEY" | xargs printf "%d")
 RESULT=$(cast call "$SERVICE_MANAGER_ADDRESS" "numberSquareds(uint32)(uint256)" $((TASK_NUMBER - 1)))
 assert_eq "$RESULT" "$RESULT_OF_SQUARED_NUMBER"
+
+sleep 5
+logt "preparing to check task result from API"
+# check via REST API
+TASK_ID=$((TASK_NUMBER - 1))
+RESPONSE=$(curl -s -X GET "http://operator01:8123/dvs/squared/v1/tasks/${TASK_ID}")
+logt "Response from API: $RESPONSE"
+RESULT_FROM_API=$(echo $RESPONSE | jq -r .value.result )
+logt "Result from API: $RESULT_FROM_API"
+assert_eq "$RESULT_FROM_API" "$RESULT_OF_SQUARED_NUMBER"
 
 # cast call "$SERVICE_MANAGER_ADDRESS" "allTaskResponses(uint32)" $((TASK_NUMBER - 1))
 # RETRIEVER_ADDRESS=$(ssh hardhat "cat $HARDHAT_DVS_PATH/OperatorStateRetriever.json" | jq -r .address)
