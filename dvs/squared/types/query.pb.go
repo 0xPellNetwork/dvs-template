@@ -269,7 +269,7 @@ const _ = grpc.SupportPackageIsVersion4
 type QueryClient interface {
 	// Task retrieves data for a given key
 	Task(ctx context.Context, in *QueryTaskRequest, opts ...grpc.CallOption) (*QueryTaskResponse, error)
-	// Tasks lists all data with a list of keys like 1,2,3,4,
+	// Tasks lists all data with a list of task indexs like 1,2,3,4,
 	Tasks(ctx context.Context, in *QueryTasksRequest, opts ...grpc.CallOption) (*QueryTasksResponse, error)
 }
 
@@ -303,7 +303,7 @@ func (c *queryClient) Tasks(ctx context.Context, in *QueryTasksRequest, opts ...
 type QueryServer interface {
 	// Task retrieves data for a given key
 	Task(context.Context, *QueryTaskRequest) (*QueryTaskResponse, error)
-	// Tasks lists all data with a list of keys like 1,2,3,4,
+	// Tasks lists all data with a list of task indexs like 1,2,3,4,
 	Tasks(context.Context, *QueryTasksRequest) (*QueryTasksResponse, error)
 }
 

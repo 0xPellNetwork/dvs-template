@@ -29,7 +29,7 @@ jobs:
       - name: Stop services
         run: make docker-all-down
       - name: Start services
-        run: make docker-up-operator
+        run: make docker-operator-up
       - name: Check docker service status
         run: make docker-all-status
       - name: Test services
