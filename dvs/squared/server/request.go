@@ -23,32 +23,25 @@ func (s *Server) RequestNumberSquared(ctx context.Context, request *types.Reques
 	squaredInt := numInt * numInt
 	squared := math.NewInt(squaredInt)
 
-	//pkgCtx := sdktypes.UnwrapContext(ctx)
-	//store := pkgCtx.KVStore(s.storeKey)
-	//if store == nil {
-	//	return nil, fmt.Errorf("store is not set")
-	//}
-
 	key := []byte(apptypes.GenItemKey(request.Task.TaskIndex))
 	result := types.TaskResult{
 		TaskRequest: request.Task,
 		IsOnChain:   false,
 	}
 	bresult, _ := result.Marshal()
-	err := s.txMgr.Set(ctx, s.storeKey, key, bresult)
+	commitID, err := s.txMgr.Set(ctx, s.storeKey, key, bresult)
 	if err != nil {
 		return nil, fmt.Errorf("failed to set value in store: %w", err)
 	}
-	commitID, err := s.txMgr.Commit()
-	if err != nil {
-		return nil, fmt.Errorf("failed to commit: %w", err)
-	}
 
-	s.logger.Info("Calculated square", "input", numInt, "result", squared, "store-commit-id", commitID,
+	s.logger.Info("Calculated square",
+		"input", numInt,
+		"result", squared,
 		"store-key-str", string(key),
 		"store-key-bytes", fmt.Sprintf("%+v", key),
 		"store-value-raw", result,
 		"store-value-bytes", fmt.Sprintf("%+v", bresult),
+		"store-commit-id", commitID,
 	)
 
 	return &types.RequestNumberSquaredOut{

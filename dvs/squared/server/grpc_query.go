@@ -35,7 +35,7 @@ func NewQuerier(logger log.Logger, storeKey storetypes.StoreKey, queryMgr apptyp
 
 // Task retrieves data for a given task index, like 0
 func (s *Querier) Task(ctx context.Context, req *types.QueryTaskRequest) (*types.QueryTaskResponse, error) {
-	s.logger.Info("GetData request",
+	s.logger.Info("Task One  request",
 		"key", req.TaskIndex,
 		"store_key", s.storeKey.String(),
 	)
@@ -52,7 +52,7 @@ func (s *Querier) Task(ctx context.Context, req *types.QueryTaskRequest) (*types
 		s.logger.Error("failed to unmarshal task result", "error", err)
 	}
 
-	s.logger.Info("GetData request",
+	s.logger.Info("Task One request",
 		"store-key-str", req.TaskIndex,
 		"store-key-bytes", fmt.Sprintf("%+v", key),
 		"store-value-raw", result,
@@ -65,7 +65,7 @@ func (s *Querier) Task(ctx context.Context, req *types.QueryTaskRequest) (*types
 
 // Tasks lists all data with a task indexs like "0,1,2,3,4"
 func (s *Querier) Tasks(ctx context.Context, req *types.QueryTasksRequest) (*types.QueryTasksResponse, error) {
-	s.logger.Debug("ListData request", "keys", req.TaskIndexes)
+	s.logger.Info("Tasks List request", "keys", req.TaskIndexes)
 
 	keyStrList := strings.Split(req.TaskIndexes, ",")
 	if len(keyStrList) == 0 {
@@ -99,7 +99,7 @@ func (s *Querier) Tasks(ctx context.Context, req *types.QueryTasksRequest) (*typ
 		if len(key) == 0 {
 			continue
 		}
-		s.logger.Info("ListData get item", "key-str", string(key))
+		s.logger.Debug("Tasks List get item", "key-str", string(key))
 
 		value, err := s.queryMgr.Get(ctx, s.storeKey, key)
 		if err != nil {

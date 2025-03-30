@@ -8,6 +8,8 @@ function load_defaults {
   export PELLDVS_HOME=${PELLDVS_HOME:-/root/.pelldvs}
   export ETH_RPC_URL=${ETH_RPC_URL:-http://eth:8545}
   export ETH_WS_URL=${ETH_WS_URL:-ws://eth:8545}
+  export QUERY_SERVER_ADDR=${QUERY_SERVER_ADDR:-operator:8123}
+  export OPERATOR_SEVER_NAME_LIST=${OPERATOR_SEVER_NAME_LIST:-"operator"}
 }
 
 logt() {
@@ -39,9 +41,14 @@ function assert_eq {
   echo "[PASS] Expected $1 to be equal to $2"
 }
 
+iterate_operators() {
+    for operator in "$OPERATOR_SEVER_NAME_LIST"; do
+        operator_healthcheck "$operator"
+    done
+}
+
 load_defaults
-operator_healthcheck operator01
-operator_healthcheck operator02
+iterate_operators $OPERATOR_SEVER_NAME_LIST
 
 ADMIN_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
 SERVICE_MANAGER_ADDRESS=$(ssh hardhat "cat $HARDHAT_DVS_PATH/IncredibleSquaringServiceManager-Proxy.json" | jq -r .address)
@@ -66,7 +73,7 @@ sleep 5
 logt "preparing to check task result from API"
 # check via REST API
 TASK_ID=$((TASK_NUMBER - 1))
-RESPONSE=$(curl -s -X GET "http://operator01:8123/dvs/squared/v1/tasks/${TASK_ID}")
+RESPONSE=$(curl -s -X GET "http://${QUERY_SERVER_ADDR}/dvs/squared/v1/tasks/${TASK_ID}")
 logt "Response from API: $RESPONSE"
 RESULT_FROM_API=$(echo $RESPONSE | jq -r .value.result )
 logt "Result from API: $RESULT_FROM_API"

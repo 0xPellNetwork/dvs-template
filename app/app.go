@@ -12,6 +12,7 @@ import (
 	"github.com/0xPellNetwork/pelldvs-libs/log"
 	"github.com/0xPellNetwork/pelldvs/config"
 	dbm "github.com/cosmos/cosmos-db"
+	cosmosreflection "github.com/cosmos/cosmos-sdk/client/grpc/reflection"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/std"
@@ -24,7 +25,6 @@ import (
 	dvsappcfg "github.com/0xPellNetwork/dvs-template/config"
 	sq "github.com/0xPellNetwork/dvs-template/dvs/squared"
 	"github.com/0xPellNetwork/dvs-template/dvs/squared/types"
-	cosmosreflection "github.com/cosmos/cosmos-sdk/client/grpc/reflection"
 )
 
 const (
@@ -114,12 +114,6 @@ func NewApp(
 		panic(fmt.Sprintf("failed to load latest version: %v", err))
 	}
 
-	// set up default query store
-	err = app.SetupDefaultQueryStore()
-	if err != nil {
-		panic(err)
-	}
-
 	txMgr := NewAppTxManager(app.BaseApp)
 	queryMgr := NewAppQueryManager(app.BaseApp)
 	app.grpcServer = grpc.NewServer()
@@ -136,6 +130,11 @@ func NewApp(
 	)
 
 	reflection.Register(app.grpcServer)
+
+	app.logger.Info("interface registry",
+		"allInterfaces", app.interfaceRegistry.ListAllInterfaces(),
+		"interfaceRegistry", app.interfaceRegistry,
+	)
 
 	return app
 }

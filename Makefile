@@ -111,6 +111,7 @@ docker-gateway-rerun:
 	make docker-gateway-up
 	make docker-gateway-logs
 
+# targets for mutiple operators
 docker-operator-all-up:
 	@cd docker && docker compose up operator01 operator02 -d
 
@@ -119,9 +120,6 @@ docker-operator-all-down:
 
 docker-operator-all-logs:
 	@cd docker && docker compose logs operator01 operator02 -f
-
-docker-operator-shell:
-	@cd docker && docker compose exec -it operator bash
 
 docker-operator-all-rerun:
 	make docker-operator-all-down
@@ -162,7 +160,34 @@ docker-operator-02-rerun:
 	make docker-operator-02-up
 	make docker-operator-02-logs
 
+# target for one operator
+docker-operator-up:
+	@cd docker && docker compose up operator -d
+.PHONY: docker-operator-one-up
+
+docker-operator-down:
+	@cd docker && docker compose down operator -v
+.PHONY: docker-operator-one-down
+
+docker-operator-logs:
+	@cd docker && docker compose logs operator -f
+.PHONY: docker-operator-one-logs
+
+docker-operator-shell:
+	@cd docker && docker compose exec -it operator bash
+.PHONY: docker-operator-one-shell
+
+docker-operator-rerun:
+	make docker-operator-down
+	make docker-operator-up
+	make docker-operator-logs
+.PHONY: docker-operator-one-rerun
+
+
 docker-test:
+	@cd docker && docker compose run --rm test
+
+docker-test-multiple-operators:
 	@bash ./docker/scripts/test-in-host.sh
 
 test:

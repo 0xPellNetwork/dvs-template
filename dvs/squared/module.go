@@ -20,14 +20,14 @@ type AppModule struct {
 	queryServer *server.Querier
 
 	txMgr    apptypes.TxManager
-	queryMgr apptypes.DataManager
+	queryMgr apptypes.QueryManager
 }
 
 // NewAppModule creates a new AppModule object
 func NewAppModule(logger log.Logger,
 	storeKey storetypes.StoreKey,
 	txMgr apptypes.TxManager,
-	queryMgr apptypes.DataManager,
+	queryMgr apptypes.QueryManager,
 ) *AppModule {
 	s, err := server.NewServer(logger, storeKey, txMgr)
 	if err != nil {

@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
+	"sync"
 
 	storetypes "cosmossdk.io/store/types"
 
@@ -11,9 +12,14 @@ import (
 
 type appDataManager struct {
 	provider apptypes.StoreProvider
+	mtx      sync.RWMutex
 }
 
+// Get retrieves a value from the store using the provided store key and key.
 func (m *appDataManager) Get(ctx context.Context, storeKey storetypes.StoreKey, key []byte) ([]byte, error) {
+	m.mtx.RLock()
+	defer m.mtx.RUnlock()
+
 	store := m.provider.QueryMultiStore().GetKVStore(storeKey)
 	if store == nil {
 		return nil, fmt.Errorf("store %s not found", storeKey)
@@ -21,22 +27,34 @@ func (m *appDataManager) Get(ctx context.Context, storeKey storetypes.StoreKey, 
 	return store.Get(key), nil
 }
 
-func (m *appDataManager) Set(ctx context.Context, storeKey storetypes.StoreKey, key, value []byte) error {
+// Set stores a value in the store using the provided store key and key, returning the commit ID and error.
+func (m *appDataManager) Set(ctx context.Context,
+	storeKey storetypes.StoreKey,
+	key, value []byte,
+) (storetypes.CommitID, error) {
+	m.mtx.Lock()
+	defer m.mtx.Unlock()
+
 	store := m.provider.CommitMultiStore().GetKVStore(storeKey)
 	if store == nil {
-		return fmt.Errorf("store %s not found", storeKey)
+		return storetypes.CommitID{}, fmt.Errorf("store %s not found", storeKey)
 	}
 	store.Set(key, value)
-	return nil
+	return m.provider.CommitMultiStore().Commit(), nil
 }
 
-func (m *appDataManager) Delete(ctx context.Context, storeKey storetypes.StoreKey, key []byte) error {
+// Delete removes a value from the store using the provided store key and key, returning the commit ID and error.
+func (m *appDataManager) Delete(ctx context.Context, storeKey storetypes.StoreKey, key []byte) (storetypes.CommitID, error) {
+	m.mtx.Lock()
+	defer m.mtx.Unlock()
+
 	store := m.provider.CommitMultiStore().GetKVStore(storeKey)
 	if store == nil {
-		return fmt.Errorf("store %s not found", storeKey)
+		return storetypes.CommitID{}, fmt.Errorf("store %s not found", storeKey)
 	}
 	store.Delete(key)
-	return nil
+
+	return m.provider.CommitMultiStore().Commit(), nil
 }
 
 type AppTxManager struct {
@@ -57,10 +75,6 @@ func NewAppQueryManager(provider apptypes.StoreProvider) *AppQueryManager {
 			provider: provider,
 		},
 	}
-}
-
-func (m *AppTxManager) Commit() (storetypes.CommitID, error) {
-	return m.provider.CommitMultiStore().Commit(), nil
 }
 
 type AppQueryManager struct {

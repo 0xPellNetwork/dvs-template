@@ -100,7 +100,7 @@ services:
         max-size: "100m"
         max-file: "3"
 
-  operator01:
+  operator:
     image: pelldvs-squaring-operator:latest
     environment:
       - ETH_RPC_URL=http://eth:8545
@@ -130,44 +130,15 @@ services:
         max-size: "100m"
         max-file: "3"
 
-  operator02:
-    image: pelldvs-squaring-operator:latest
-    environment:
-      - ETH_RPC_URL=http://eth:8545
-      - ETH_WS_URL=ws://eth:8545
-      - OPERATOR_NODE_NAME=operator02
-      - REGISTRY_ROUTER_ADDRESS=${REGISTRY_ROUTER_ADDRESS}
-    depends_on:
-      operator01:
-        condition: service_started
-      dvs:
-        condition: service_started
-      task-gateway:
-        condition: service_started
-    entrypoint: [ "bash", "/root/scripts/start_operator.sh" ]
-    volumes:
-      - ./operator/scripts:/root/scripts
-    healthcheck:
-      test: [ "CMD", "test", "-f", "/root/operator_initialized" ]
-      start_period: 50s
-      retries: 3
-      interval: 10s
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "100m"
-        max-file: "3"
-
   test:
     image: pelldvs-squaring-operator:latest
     environment:
       - ETH_RPC_URL=http://eth:8545
       - ETH_WS_URL=ws://eth:8545
       - TIMEOUT_FOR_TASK_PROCESS=${TIMEOUT_FOR_TASK_PROCESS:-10}
+      - QUERY_SERVER_ADDR=${QUERY_SERVER_ADDR:-operator:8123}
     depends_on:
-      operator01:
-        condition: service_started
-      operator02:
+      operator:
         condition: service_started
       task-gateway:
         condition: service_started

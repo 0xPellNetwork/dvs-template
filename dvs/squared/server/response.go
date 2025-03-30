@@ -61,7 +61,7 @@ func (s *Server) DVSResponsHandler(ctx context.Context, in *types.RequestNumberS
 		}
 	}
 
-	groupApksG1 := []csquaringmanager.BN254G1Point{}
+	var groupApksG1 []csquaringmanager.BN254G1Point
 	for _, apk := range validatedData.GroupApksG1 {
 		tapk := bls.NewZeroG1Point()
 		_ = tapk.Unmarshal(apk)
@@ -126,23 +126,20 @@ func (s *Server) DVSResponsHandler(ctx context.Context, in *types.RequestNumberS
 	if err != nil {
 		return nil, err
 	}
-	err = s.txMgr.Set(ctx, s.storeKey, key, bresult)
+	commitID, err := s.txMgr.Set(ctx, s.storeKey, key, bresult)
 	if err != nil {
 		s.logger.Error("Failed to set value in store", "key", string(key), "error", err)
 		return nil, err
 	}
-	commitID, err := s.txMgr.Commit()
-	if err != nil {
-		s.logger.Error("Failed to commit transaction", "error", err)
-		return nil, err
-	}
+
 	s.logger.Info("process done for response",
 		"input", in.Task.Squared,
 		"result", squared,
-		"key", key,
-		"store-commit-id", commitID,
+		"store-key-str", string(key),
+		"store-key-bytes", fmt.Sprintf("%+v", key),
 		"store-value-raw", result,
 		"store-value-bytes", fmt.Sprintf("%+v", bresult),
+		"store-commit-id", commitID,
 	)
 
 	return &types.ResponseNumberSquaredOut{}, nil
