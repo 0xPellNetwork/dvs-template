@@ -14,10 +14,10 @@ const (
 
 // AppConfig defines the configuration file structure
 type AppConfig struct {
-	QueryRPCServerAddress      string           `json:"query_rpc_server_address"`
-	QueryHTTPServerAddress     string           `json:"query_http_server_address"`
-	GatewayRPCClientURL        string           `json:"gateway_rpc_client_url"`
-	ChainServiceManagerAddress map[int64]string `json:"chain_service_manager_address"`
+	QueryRPCServerAddress      string            `json:"query_rpc_server_address"`
+	QueryHTTPServerAddress     string            `json:"query_http_server_address"`
+	GatewayRPCClientURL        string            `json:"gateway_rpc_client_url"`
+	ChainServiceManagerAddress map[uint64]string `json:"chain_service_manager_address"`
 }
 
 // LoadAppConfig loads configuration from the specified path
@@ -50,7 +50,7 @@ func (ac *AppConfig) Finalize() {
 	}
 
 	if ac.ChainServiceManagerAddress == nil {
-		ac.ChainServiceManagerAddress = make(map[int64]string)
+		ac.ChainServiceManagerAddress = make(map[uint64]string)
 	}
 }
 

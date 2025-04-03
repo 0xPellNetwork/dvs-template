@@ -12,6 +12,7 @@ import (
 
 	"github.com/0xPellNetwork/dvs-template/dvs/squared/types"
 	apptypes "github.com/0xPellNetwork/dvs-template/types"
+	sdktypes "github.com/0xPellNetwork/pellapp-sdk/types"
 )
 
 // make sure Server implements the QueryServiceServer interface
@@ -21,11 +22,11 @@ type Querier struct {
 	types.UnimplementedQueryServer
 	logger   log.Logger
 	storeKey storetypes.StoreKey
-	queryMgr apptypes.QueryManager
+	queryMgr sdktypes.QueryManager
 }
 
 // NewServer creates a new Server instance
-func NewQuerier(logger log.Logger, storeKey storetypes.StoreKey, queryMgr apptypes.QueryManager) (*Querier, error) {
+func NewQuerier(logger log.Logger, storeKey storetypes.StoreKey, queryMgr sdktypes.QueryManager) (*Querier, error) {
 	return &Querier{
 		logger:   logger,
 		storeKey: storeKey,

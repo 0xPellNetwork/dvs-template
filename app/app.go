@@ -1,30 +1,28 @@
 package app
 
 import (
-	"context"
 	"fmt"
-	"net"
-	"net/http"
+	"io"
 
 	storetypes "cosmossdk.io/store/types"
 	"github.com/0xPellNetwork/pellapp-sdk/baseapp"
 	"github.com/0xPellNetwork/pellapp-sdk/pelldvs"
+	"github.com/0xPellNetwork/pellapp-sdk/server/api"
+	servercfg "github.com/0xPellNetwork/pellapp-sdk/server/config"
+	servertypes "github.com/0xPellNetwork/pellapp-sdk/server/types"
+	sdktypes "github.com/0xPellNetwork/pellapp-sdk/types"
 	"github.com/0xPellNetwork/pelldvs-libs/log"
-	"github.com/0xPellNetwork/pelldvs/config"
+	pelldvscfg "github.com/0xPellNetwork/pelldvs/config"
 	dbm "github.com/cosmos/cosmos-db"
-	cosmosreflection "github.com/cosmos/cosmos-sdk/client/grpc/reflection"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/std"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/reflection"
 
 	dvsappcfg "github.com/0xPellNetwork/dvs-template/config"
-	sq "github.com/0xPellNetwork/dvs-template/dvs/squared"
-	"github.com/0xPellNetwork/dvs-template/dvs/squared/types"
+	sqmodule "github.com/0xPellNetwork/dvs-template/dvs/squared"
+	sqtypes "github.com/0xPellNetwork/dvs-template/dvs/squared/types"
 )
 
 const (
@@ -39,13 +37,12 @@ var (
 
 // App struct represents the application
 type App struct {
-	dvsAppConfig *dvsappcfg.AppConfig
 	*baseapp.BaseApp
-
+	dvsAppConfig      *dvsappcfg.AppConfig
 	appCodec          codec.Codec
 	logger            log.Logger
-	interfaceRegistry codectypes.InterfaceRegistry
-	sqModule          *sq.AppModule
+	InterfaceRegistry codectypes.InterfaceRegistry
+	ModuleManager     *sdktypes.ModuleManager
 
 	DvsNode    *pelldvs.Node
 	grpcServer *grpc.Server
@@ -53,7 +50,7 @@ type App struct {
 
 type DBContext struct {
 	ID     string
-	Config *config.Config
+	Config *pelldvscfg.Config
 }
 
 // DBProvider takes a DBContext and returns an instantiated DB.
@@ -68,39 +65,27 @@ func DefaultDBProvider(ctx *DBContext) (dbm.DB, error) {
 
 // NewApp initializes a new App instance
 func NewApp(
-	interfaceRegistry codectypes.InterfaceRegistry,
 	logger log.Logger,
-	cfg *config.Config,
-	appConfig *dvsappcfg.AppConfig,
+	db dbm.DB,
+	traceStore io.Writer,
+	appOpts servertypes.AppOptions,
+	baseappOptions ...func(*baseapp.BaseApp),
 ) *App {
+	interfaceRegistry := codectypes.NewInterfaceRegistry()
 	cdc := codec.NewProtoCodec(interfaceRegistry)
-	db, err := DefaultDBProvider(&DBContext{
-		ID:     Name + "-db",
-		Config: cfg,
-	})
-	if err != nil {
-		panic(fmt.Sprintf("failed to initialize db: %v", err))
-	}
 
 	app := &App{
 		BaseApp:           baseapp.NewBaseApp(Name, logger, db, cdc),
-		interfaceRegistry: interfaceRegistry,
+		InterfaceRegistry: interfaceRegistry,
 		logger:            logger,
 		appCodec:          cdc,
-		dvsAppConfig:      appConfig,
 	}
 
 	// Register standard types interfaces
-	std.RegisterInterfaces(app.interfaceRegistry)
-	authtypes.RegisterInterfaces(app.interfaceRegistry)
+	std.RegisterInterfaces(app.InterfaceRegistry)
+	authtypes.RegisterInterfaces(app.InterfaceRegistry)
 
-	// Build dvs node
-	app.DvsNode, err = pelldvs.NewNode(app.logger, app, cfg)
-	if err != nil {
-		panic(err)
-	}
-
-	sqMoudleStoreKey := storetypes.NewKVStoreKey(types.ModuleName)
+	sqMoudleStoreKey := storetypes.NewKVStoreKey(sqtypes.ModuleName)
 	app.logger.Info("Mounting query store", "key", sqMoudleStoreKey.String())
 
 	// mount the store
@@ -108,103 +93,37 @@ func NewApp(
 
 	// load latest version
 	app.logger.Info("Loading latest version")
-	err = app.CommitMultiStore().LoadLatestVersion()
+	err := app.CommitMultiStore().LoadLatestVersion()
 	if err != nil {
 		app.logger.Error("Failed to load latest version", "error", err)
 		panic(fmt.Sprintf("failed to load latest version: %v", err))
 	}
 
-	txMgr := NewAppTxManager(app.BaseApp)
-	queryMgr := NewAppQueryManager(app.BaseApp)
-	app.grpcServer = grpc.NewServer()
+	txMgr := sdktypes.NewAppTxManager(app.BaseApp)
+	queryMgr := sdktypes.NewAppQueryManager(app.BaseApp)
+	app.BaseApp.SetGRPCQueryRouter(baseapp.NewGRPCQueryRouter())
+	app.BaseApp.GRPCQueryRouter().SetInterfaceRegistry(app.InterfaceRegistry)
 
 	// Register DVS module services
-	app.sqModule = sq.NewAppModule(app.logger, sqMoudleStoreKey, txMgr, queryMgr)
-	app.sqModule.RegisterServices(app.GetMsgRouter())
-	app.sqModule.RegisterInterfaces(app.interfaceRegistry)
-	app.sqModule.RegisterGRPCServer(app.grpcServer)
+	sqModule := sqmodule.NewAppModule(app.logger, sqMoudleStoreKey, txMgr, queryMgr)
 
-	cosmosreflection.RegisterReflectionServiceServer(
-		app.grpcServer,
-		cosmosreflection.NewReflectionServiceServer(interfaceRegistry),
-	)
+	app.ModuleManager = sdktypes.NewManager(sqModule)
 
-	reflection.Register(app.grpcServer)
+	app.ModuleManager.RegisterInterfaces(app.InterfaceRegistry)
+	app.ModuleManager.RegisterServices(app.GetMsgRouter().GetConfigurator())
+	app.ModuleManager.RegisterResultMsgExtractors(app.GetMsgRouter().GetConfigurator())
+	app.ModuleManager.RegisterQueryServices(app.BaseApp.GRPCQueryRouter())
 
 	app.logger.Info("interface registry",
-		"allInterfaces", app.interfaceRegistry.ListAllInterfaces(),
-		"interfaceRegistry", app.interfaceRegistry,
+		"allInterfaces", app.InterfaceRegistry.ListAllInterfaces(),
+		"InterfaceRegistry", app.InterfaceRegistry,
 	)
 
 	return app
 }
 
-// Start method starts the application
-func (app *App) Start() error {
-	app.logger.Info("App Start")
-	if err := app.DvsNode.Start(); err != nil {
-		app.logger.Error("DvsNode Start Failed", "error", err.Error())
-		return err
-	}
-
-	// start query http server
-	if err := app.setupHTTPServer(
-		app.dvsAppConfig.QueryRPCServerAddress,
-		app.dvsAppConfig.QueryHTTPServerAddress,
-	); err != nil {
-		app.logger.Error("Failed to setup HTTP server", "error", err)
-		return err
-	}
-
-	// start query grpc server
-	if err := app.setupGRPCServer(); err != nil {
-		app.logger.Error("Failed to setup gRPC server", "error", err)
-		return err
-	}
-
-	// Block the main thread
-	c := make(chan any)
-	<-c
-	return nil
-}
-
-// setup gGRPC server and start listening
-func (app *App) setupGRPCServer() error {
-	// create gRPC server
-	go func() {
-		lis, err := net.Listen("tcp", app.dvsAppConfig.QueryRPCServerAddress)
-		if err != nil {
-			app.logger.Error("Failed to listen", "error", err)
-			return
-		}
-		app.logger.Info("Starting Query gRPC server", "address", app.dvsAppConfig.QueryRPCServerAddress)
-		if err := app.grpcServer.Serve(lis); err != nil {
-			app.logger.Error("Failed to serve", "error", err)
-		}
-	}()
-
-	return nil
-}
-
-func (app *App) setupHTTPServer(grpcAddr, httpAddr string) error {
-	ctx := context.Background()
-	mux := runtime.NewServeMux()
-
-	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
-
-	err := types.RegisterQueryHandlerFromEndpoint(
-		ctx, mux, grpcAddr, opts,
-	)
-	if err != nil {
-		return err
-	}
-
-	go func() {
-		app.logger.Info("Starting Query HTTP server", "address", httpAddr)
-		err := http.ListenAndServe(httpAddr, mux)
-		if err != nil {
-			app.logger.Error("Failed to start HTTP server", "error", err)
-		}
-	}()
-	return nil
+func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig servercfg.APIConfig) {
+	clientCtx := apiSvr.ClientCtx
+	// Register grpc-gateway routes for all modules.
+	app.ModuleManager.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 }
