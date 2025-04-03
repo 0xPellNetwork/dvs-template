@@ -20,7 +20,6 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"google.golang.org/grpc"
 
-	dvsappcfg "github.com/0xPellNetwork/dvs-template/config"
 	sqmodule "github.com/0xPellNetwork/dvs-template/dvs/squared"
 	sqtypes "github.com/0xPellNetwork/dvs-template/dvs/squared/types"
 )
@@ -38,7 +37,6 @@ var (
 // App struct represents the application
 type App struct {
 	*baseapp.BaseApp
-	dvsAppConfig      *dvsappcfg.AppConfig
 	appCodec          codec.Codec
 	logger            log.Logger
 	InterfaceRegistry codectypes.InterfaceRegistry
