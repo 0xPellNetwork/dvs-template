@@ -41,7 +41,7 @@ type App struct {
 	InterfaceRegistry codectypes.InterfaceRegistry
 	ModuleManager     *sdktypes.ModuleManager
 
-	DvsNode    *pelldvs.Node
+	DvsNode *pelldvs.Node
 }
 
 type DBContext struct {
