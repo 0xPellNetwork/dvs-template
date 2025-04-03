@@ -18,7 +18,6 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/std"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"google.golang.org/grpc"
 
 	sqmodule "github.com/0xPellNetwork/dvs-template/dvs/squared"
 	sqtypes "github.com/0xPellNetwork/dvs-template/dvs/squared/types"
@@ -43,7 +42,6 @@ type App struct {
 	ModuleManager     *sdktypes.ModuleManager
 
 	DvsNode    *pelldvs.Node
-	grpcServer *grpc.Server
 }
 
 type DBContext struct {
