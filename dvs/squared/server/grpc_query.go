@@ -7,12 +7,12 @@ import (
 	"strings"
 
 	storetypes "cosmossdk.io/store/types"
+	sdktypes "github.com/0xPellNetwork/pellapp-sdk/types"
 	"github.com/0xPellNetwork/pelldvs-libs/log"
 	"github.com/golang/protobuf/proto" //nolint:staticcheck
 
 	"github.com/0xPellNetwork/dvs-template/dvs/squared/types"
 	apptypes "github.com/0xPellNetwork/dvs-template/types"
-	sdktypes "github.com/0xPellNetwork/pellapp-sdk/types"
 )
 
 // make sure Server implements the QueryServiceServer interface

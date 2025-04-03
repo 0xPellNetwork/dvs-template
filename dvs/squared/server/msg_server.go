@@ -4,10 +4,10 @@ import (
 	"fmt"
 
 	storetypes "cosmossdk.io/store/types"
+	sdktypes "github.com/0xPellNetwork/pellapp-sdk/types"
 	"github.com/0xPellNetwork/pelldvs-libs/log"
 
 	"github.com/0xPellNetwork/dvs-template/dvs/squared/types"
-	sdktypes "github.com/0xPellNetwork/pellapp-sdk/types"
 )
 
 var _ types.SquaredMsgServerServer = &Server{}
