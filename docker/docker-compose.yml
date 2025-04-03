@@ -70,8 +70,6 @@ services:
       emulator:
         condition: service_started
     entrypoint: [ "bash", "/root/scripts/start_dvs.sh" ]
-    ports:
-      - "${DVS_HOST_PORT:-26653}:26653"
     volumes:
       - ./pelldvs/scripts:/root/scripts
     logging:
@@ -116,8 +114,6 @@ services:
         condition: service_started
     entrypoint: [ "bash", "/root/scripts/start_operator.sh" ]
     ports:
-      - "8123:8123"
-      - "9123:9123"
       - "${OPERATOR_HOST_PORT:-36657}:26657"
     volumes:
       - ./operator/scripts:/root/scripts
