@@ -73,7 +73,6 @@ func execPostSetup(svrCtx *server.Context, clientCtx client.Context, ctx context
 	)
 	if err != nil {
 		panic("failed to create TaskDispatcher: " + err.Error())
-		return err
 	}
 
 	g.Go(func() error {
