@@ -7,15 +7,11 @@ import (
 )
 
 const (
-	defaultQueryHTTPServerAddr = "0.0.0.0:8123"
-	defaultQueryGRPCServerAddr = "0.0.0.0:9123"
-	defaultGatewayRPCURL       = "http://localhost:8949"
+	defaultGatewayRPCURL = "http://localhost:8949"
 )
 
 // AppConfig defines the configuration file structure
 type AppConfig struct {
-	QueryRPCServerAddress      string            `json:"query_rpc_server_address"`
-	QueryHTTPServerAddress     string            `json:"query_http_server_address"`
 	GatewayRPCClientURL        string            `json:"gateway_rpc_client_url"`
 	ChainServiceManagerAddress map[uint64]string `json:"chain_service_manager_address"`
 }
@@ -32,19 +28,11 @@ func LoadAppConfig(path string) (*AppConfig, error) {
 		return nil, err
 	}
 
-	config.Finalize()
-
 	return &config, nil
 }
 
 // Finnalize initializes the configuration
 func (ac *AppConfig) Finalize() {
-	if ac.QueryRPCServerAddress == "" {
-		ac.QueryRPCServerAddress = defaultQueryGRPCServerAddr
-	}
-	if ac.QueryHTTPServerAddress == "" {
-		ac.QueryHTTPServerAddress = defaultQueryHTTPServerAddr
-	}
 	if ac.GatewayRPCClientURL == "" {
 		ac.GatewayRPCClientURL = defaultGatewayRPCURL
 	}
@@ -56,12 +44,6 @@ func (ac *AppConfig) Finalize() {
 
 // Validate checks if the configuration is valid
 func (ac *AppConfig) Validate() error {
-	if ac.QueryRPCServerAddress == "" {
-		return fmt.Errorf("QueryRPCServerAddress is required")
-	}
-	if ac.QueryHTTPServerAddress == "" {
-		return fmt.Errorf("QueryHTTPServerAddress is required")
-	}
 	if ac.GatewayRPCClientURL == "" {
 		return fmt.Errorf("GatewayRPCClientURL is required")
 	}

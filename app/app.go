@@ -118,7 +118,7 @@ func NewApp(
 	return app
 }
 
-func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig servercfg.APIConfig) {
+func (app *App) RegisterAPIRoutes(apiSvr *api.Server, _ servercfg.APIConfig) {
 	clientCtx := apiSvr.ClientCtx
 	// Register grpc-gateway routes for all modules.
 	app.ModuleManager.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
