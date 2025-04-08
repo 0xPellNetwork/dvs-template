@@ -6,7 +6,7 @@ require (
 	cosmossdk.io/api v0.7.6 // indirect
 	cosmossdk.io/math v1.4.0
 	github.com/0xPellNetwork/dvs-contracts-template v0.1.0
-	github.com/0xPellNetwork/pellapp-sdk v0.1.10-beta.1.0.20250407102909-e0a5fd2c77e3
+	github.com/0xPellNetwork/pellapp-sdk v0.1.10-beta.1.0.20250408043540-608460524ffd
 	github.com/0xPellNetwork/pelldvs v0.3.0
 	github.com/0xPellNetwork/pelldvs-interactor v0.0.14
 	github.com/0xPellNetwork/pelldvs-libs v0.2.0
