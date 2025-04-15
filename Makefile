@@ -34,6 +34,19 @@ docker-all-down:
 docker-all-status:
 	@cd docker && docker compose ps -a
 
+docker-all-logs-in-ci:
+	@cd docker && \
+		docker compose logs hardhat -n 50 && \
+		echo -e "\n\n\t==================== hardhat logs end \n\n" && \
+		docker compose logs emulator -n 50 && \
+		echo -e "\n\n\t==================== emulator logs end \n\n" && \
+		docker compose logs dvs -n 50 && \
+		echo -e "\n\n\t==================== dvs logs end \n\n" && \
+		docker compose logs task-gateway -n 50 && \
+		echo -e "\n\n\t==================== task-gateway logs end \n\n" && \
+		docker compose logs operator -n 50 && \
+		echo -e "\n\n\t==================== operator logs end \n\n"
+
 docker-up-operator:
 	@cd docker && docker compose up operator01 operator02 -d
 
