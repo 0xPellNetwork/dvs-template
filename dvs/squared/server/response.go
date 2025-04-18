@@ -13,11 +13,12 @@ import (
 
 	chainconnector "github.com/0xPellNetwork/dvs-template/chain_connector"
 	"github.com/0xPellNetwork/dvs-template/dvs/squared/types"
+	apptypes "github.com/0xPellNetwork/dvs-template/types"
 )
 
 var ChainConnector *chainconnector.Client
 
-func (s Server) DVSResponsHandler(ctx context.Context, in *types.RequestNumberSquaredIn) (*types.ResponseNumberSquaredOut, error) {
+func (s *Server) DVSResponsHandler(ctx context.Context, in *types.RequestNumberSquaredIn) (*types.ResponseNumberSquaredOut, error) {
 	s.logger.Debug("ProcessResponseNumberSquared",
 		"TaskIndex", in.Task.TaskIndex,
 		"taskDetail", fmt.Sprintf("%+v", in.Task),
@@ -37,8 +38,9 @@ func (s Server) DVSResponsHandler(ctx context.Context, in *types.RequestNumberSq
 
 	squared, _ := math.NewIntFromString(string(validatedData.Data))
 	// Construct task parameters
+	num, _ := math.NewIntFromString(in.Task.Squared)
 	task := csquaringmanager.IIncredibleSquaringServiceManagerTask{
-		NumberToBeSquared:        in.Task.Squared.BigInt(),
+		NumberToBeSquared:        num.BigInt(),
 		TaskCreatedBlock:         in.Task.Height,
 		GroupNumbers:             groupNumbersBytes,
 		GroupThresholdPercentage: in.Task.GroupThresholdPercentage,
@@ -59,11 +61,11 @@ func (s Server) DVSResponsHandler(ctx context.Context, in *types.RequestNumberSq
 		}
 	}
 
-	quorumApksG1 := []csquaringmanager.BN254G1Point{}
-	for _, apk := range validatedData.QuorumApksG1 {
+	var groupApksG1 []csquaringmanager.BN254G1Point
+	for _, apk := range validatedData.GroupApksG1 {
 		tapk := bls.NewZeroG1Point()
 		_ = tapk.Unmarshal(apk)
-		quorumApksG1 = append(quorumApksG1, csquaringmanager.BN254G1Point{
+		groupApksG1 = append(groupApksG1, csquaringmanager.BN254G1Point{
 			X: tapk.X.BigInt(big.NewInt(0)),
 			Y: tapk.Y.BigInt(big.NewInt(0)),
 		})
@@ -92,11 +94,11 @@ func (s Server) DVSResponsHandler(ctx context.Context, in *types.RequestNumberSq
 
 	nonSignerStakesAndSignature := csquaringmanager.IBLSSignatureVerifierNonSignerStakesAndSignature{
 		NonSignerPubkeys:            nonSignerPubkeysG1,
-		GroupApks:                   quorumApksG1,
+		GroupApks:                   groupApksG1,
 		ApkG2:                       signersApkG2,
 		Sigma:                       signersAggSigG1,
-		NonSignerGroupBitmapIndices: validatedData.NonSignerQuorumBitmapIndices,
-		GroupApkIndices:             validatedData.QuorumApkIndices,
+		NonSignerGroupBitmapIndices: validatedData.NonSignerGroupBitmapIndices,
+		GroupApkIndices:             validatedData.GroupApkIndices,
 		TotalStakeIndices:           validatedData.TotalStakeIndices,
 		NonSignerStakeIndices:       nonSignerStakeIndices,
 	}
@@ -112,6 +114,33 @@ func (s Server) DVSResponsHandler(ctx context.Context, in *types.RequestNumberSq
 	}
 
 	s.logger.Info("ProcessResponseNumberSquared Done")
+
+	key := []byte(apptypes.GenItemKey(in.Task.TaskIndex))
+	result := types.TaskResult{
+		TaskRequest: in.Task,
+		Result:      squared.String(),
+		IsOnChain:   true,
+	}
+
+	bresult, err := result.Marshal()
+	if err != nil {
+		return nil, err
+	}
+	commitID, err := s.txMgr.Set(ctx, s.storeKey, key, bresult)
+	if err != nil {
+		s.logger.Error("Failed to set value in store", "key", string(key), "error", err)
+		return nil, err
+	}
+
+	s.logger.Info("process done for response",
+		"input", in.Task.Squared,
+		"result", squared,
+		"store-key-str", string(key),
+		"store-key-bytes", fmt.Sprintf("%+v", key),
+		"store-value-raw", result,
+		"store-value-bytes", fmt.Sprintf("%+v", bresult),
+		"store-commit-id", commitID,
+	)
 
 	return &types.ResponseNumberSquaredOut{}, nil
 }

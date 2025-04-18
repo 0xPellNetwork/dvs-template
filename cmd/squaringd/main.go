@@ -1,9 +1,7 @@
 package main
 
 import (
-	"os"
-
-	"github.com/0xPellNetwork/pelldvs/libs/cli"
+	svrcmd "github.com/0xPellNetwork/pellapp-sdk/server/cmd"
 
 	"github.com/0xPellNetwork/dvs-template/cmd/squaringd/commands"
 )
@@ -14,9 +12,10 @@ func main() {
 		commands.StartTaskGatewayCmd,
 		commands.StartOperatorCmd,
 		commands.StartAggregatorCmd,
+		commands.StartAggregatorCmd,
 	)
-	cmd := cli.PrepareBaseCmd(rootCmd, "", os.ExpandEnv("$HOME"))
-	if err := cmd.Execute(); err != nil {
+	commands.InitRunOperatorCommand(rootCmd)
+	if err := svrcmd.Execute(rootCmd, "", commands.DefaultNodeHome); err != nil {
 		panic(err)
 	}
 }

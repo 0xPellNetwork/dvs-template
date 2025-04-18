@@ -79,7 +79,8 @@ EOF
 }
 
 function start_operator {
-  squaringd start-operator --home "$PELLDVS_HOME"
+  # squaringd start-operator --home "$PELLDVS_HOME"
+  squaringd run-operator start --home "$PELLDVS_HOME"
 }
 
 ## start sshd

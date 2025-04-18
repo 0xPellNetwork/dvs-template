@@ -13,6 +13,11 @@ services:
       start_period: 50s
       retries: 3
       interval: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
 
   eth:
     image: ghcr.io/foundry-rs/foundry:latest
@@ -24,12 +29,18 @@ services:
       test: [ "CMD", "cast", "block-number" ]
       retries: 3
       interval: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
 
   emulator:
     image: pelldvs-squaring-pelldvs:latest
     environment:
       - ETH_RPC_URL=http://eth:8545
       - ETH_WS_URL=ws://eth:8545
+      - REGISTRY_ROUTER_ADDRESS=${REGISTRY_ROUTER_ADDRESS}
     depends_on:
       hardhat:
         condition: service_started
@@ -43,18 +54,29 @@ services:
       start_period: 50s
       retries: 3
       interval: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
 
   dvs:
     image: pelldvs-squaring-operator:latest
     environment:
       - ETH_RPC_URL=http://eth:8545
       - ETH_WS_URL=ws://eth:8545
+      - REGISTRY_ROUTER_ADDRESS=${REGISTRY_ROUTER_ADDRESS}
     depends_on:
       emulator:
         condition: service_started
     entrypoint: [ "bash", "/root/scripts/start_dvs.sh" ]
     volumes:
       - ./pelldvs/scripts:/root/scripts
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
 
   task-gateway:
     image: pelldvs-squaring-operator:latest
@@ -72,6 +94,11 @@ services:
       start_period: 50s
       retries: 3
       interval: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
 
   operator01:
     image: pelldvs-squaring-operator:latest
@@ -79,12 +106,17 @@ services:
       - ETH_RPC_URL=http://eth:8545
       - ETH_WS_URL=ws://eth:8545
       - OPERATOR_NODE_NAME=operator01
+      - REGISTRY_ROUTER_ADDRESS=${REGISTRY_ROUTER_ADDRESS}
     depends_on:
       dvs:
         condition: service_started
       task-gateway:
         condition: service_started
     entrypoint: [ "bash", "/root/scripts/start_operator.sh" ]
+    ports:
+      - "8123:8123"
+      - "9123:9123"
+      - "${OPERATOR_HOST_PORT:-36657}:26657"
     volumes:
       - ./operator/scripts:/root/scripts
     healthcheck:
@@ -92,6 +124,11 @@ services:
       start_period: 50s
       retries: 3
       interval: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
 
   operator02:
     image: pelldvs-squaring-operator:latest
@@ -99,7 +136,10 @@ services:
       - ETH_RPC_URL=http://eth:8545
       - ETH_WS_URL=ws://eth:8545
       - OPERATOR_NODE_NAME=operator02
+      - REGISTRY_ROUTER_ADDRESS=${REGISTRY_ROUTER_ADDRESS}
     depends_on:
+      operator01:
+        condition: service_started
       dvs:
         condition: service_started
       task-gateway:
@@ -112,6 +152,11 @@ services:
       start_period: 50s
       retries: 3
       interval: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
 
   test:
     image: pelldvs-squaring-operator:latest
@@ -119,6 +164,8 @@ services:
       - ETH_RPC_URL=http://eth:8545
       - ETH_WS_URL=ws://eth:8545
       - TIMEOUT_FOR_TASK_PROCESS=${TIMEOUT_FOR_TASK_PROCESS:-10}
+      - OPERATOR_SEVER_NAME_LIST=operator01,operator02
+      - QUERY_SERVER_ADDR=${QUERY_SERVER_ADDR:-operator01:8123}
     depends_on:
       operator01:
         condition: service_started
@@ -129,3 +176,8 @@ services:
     entrypoint: [ "bash", "/root/scripts/test.sh" ]
     volumes:
       - ./operator/scripts:/root/scripts
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
