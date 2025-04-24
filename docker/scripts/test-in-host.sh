@@ -34,7 +34,7 @@ if [ "$STATUS" -ne 0 ]; then
 	docker compose logs dvs -n 30;
 	echo  -e "\n\n";
 	echo  -e "\n\n";
-	docker compose logs task-gateway -n 30;
+	docker compose logs gateway -n 30;
 	echo  -e "\n\n";
 	echo  -e "\n\n";
 	docker compose logs operator01 -n 30;

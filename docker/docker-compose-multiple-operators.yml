@@ -78,7 +78,7 @@ services:
         max-size: "100m"
         max-file: "3"
 
-  task-gateway:
+  gateway:
     image: pelldvs-squaring-operator:latest
     environment:
       - ETH_RPC_URL=http://eth:8545
@@ -110,7 +110,7 @@ services:
     depends_on:
       dvs:
         condition: service_started
-      task-gateway:
+      gateway:
         condition: service_started
     entrypoint: [ "bash", "/root/scripts/start_operator.sh" ]
     ports:
@@ -142,7 +142,7 @@ services:
         condition: service_started
       dvs:
         condition: service_started
-      task-gateway:
+      gateway:
         condition: service_started
     entrypoint: [ "bash", "/root/scripts/start_operator.sh" ]
     volumes:
@@ -171,7 +171,7 @@ services:
         condition: service_started
       operator02:
         condition: service_started
-      task-gateway:
+      gateway:
         condition: service_started
     entrypoint: [ "bash", "/root/scripts/test.sh" ]
     volumes:

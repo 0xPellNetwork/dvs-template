@@ -42,8 +42,8 @@ docker-all-logs-in-ci:
 		echo -e "\n\n\t==================== emulator logs end \n\n" && \
 		docker compose logs dvs -n 50 && \
 		echo -e "\n\n\t==================== dvs logs end \n\n" && \
-		docker compose logs task-gateway -n 50 && \
-		echo -e "\n\n\t==================== task-gateway logs end \n\n" && \
+		docker compose logs gateway -n 50 && \
+		echo -e "\n\n\t==================== gateway logs end \n\n" && \
 		docker compose logs operator -n 50 && \
 		echo -e "\n\n\t==================== operator logs end \n\n"
 
@@ -108,16 +108,16 @@ docker-dvs-rerun:
 	make docker-dvs-logs
 
 docker-gateway-up:
-	@cd docker && docker compose up task-gateway -d
+	@cd docker && docker compose up gateway -d
 
 docker-gateway-down:
-	@cd docker && docker compose down task-gateway -v
+	@cd docker && docker compose down gateway -v
 
 docker-gateway-logs:
-	@cd docker && docker compose logs task-gateway -f
+	@cd docker && docker compose logs gateway -f
 
 docker-gateway-shell:
-	@cd docker && docker compose exec -it task-gateway bash
+	@cd docker && docker compose exec -it gateway bash
 
 docker-gateway-rerun:
 	make docker-gateway-down

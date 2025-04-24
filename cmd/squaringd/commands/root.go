@@ -4,9 +4,13 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/0xPellNetwork/pellapp-sdk/client"
+	clienthelpers "github.com/0xPellNetwork/pellapp-sdk/client/helpers"
+	"github.com/0xPellNetwork/pellapp-sdk/server"
 	"github.com/0xPellNetwork/pelldvs-libs/log"
 	dvsconfig "github.com/0xPellNetwork/pelldvs/config"
 	"github.com/0xPellNetwork/pelldvs/libs/cli"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -16,19 +20,53 @@ var (
 	config = dvsconfig.DefaultConfig()
 )
 
-// RootCmd is the root command for squaringd server.
-var RootCmd = &cobra.Command{
-	Use:   "squaringd",
-	Short: "Square number application developed based on PellDvs",
-	PersistentPreRunE: func(cmd *cobra.Command, args []string) (err error) {
-		// Initialize config with home path
-		config = loadNodeConfig(viper.GetString("home"))
-		if viper.GetBool(cli.TraceFlag) {
-			logger = log.NewTracingLogger(logger)
-		}
-		logger = logger.With("module", "main")
-		return nil
-	},
+var DefaultNodeHome string
+
+func init() {
+	var err error
+	DefaultNodeHome, err = clienthelpers.GetNodeHomeDirectory(".pelldvs")
+	if err != nil {
+		panic(err)
+	}
+}
+
+// RootCmd creates the root command for the application
+func RootCmd() *cobra.Command {
+	initClientCtx := client.Context{}.
+		WithHomeDir(DefaultNodeHome).
+		WithInterfaceRegistry(codectypes.NewInterfaceRegistry())
+
+	cmd := &cobra.Command{
+		Use:   "squared",
+		Short: "Square number application developed based on PellDvs",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return nil
+		},
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			// set the default command outputs
+			cmd.SetOut(cmd.OutOrStdout())
+			cmd.SetErr(cmd.ErrOrStderr())
+
+			config = loadNodeConfig(viper.GetString("home"))
+			if viper.GetBool(cli.TraceFlag) {
+				logger = log.NewTracingLogger(logger)
+			}
+			logger = logger.With("module", "main")
+
+			initClientCtx = initClientCtx.WithCmdContext(cmd.Context())
+
+			if err := client.SetCmdClientContextHandler(initClientCtx, cmd); err != nil {
+				return err
+			}
+
+			customAppTemplate, customAppConfig := initAppConfig()
+			customPellDVSConfig := initPellDVSConfig()
+
+			return server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, customPellDVSConfig)
+		},
+	}
+
+	return cmd
 }
 
 func loadNodeConfig(homeFlag string) *dvsconfig.Config {

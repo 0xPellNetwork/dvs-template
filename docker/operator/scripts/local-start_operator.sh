@@ -10,7 +10,7 @@ logt() {
 function load_defaults {
   export HARDHAT_CONTRACTS_PATH="/app/dvs-contracts-template/lib/pell-middleware-contracts/lib/pell-contracts/deployments/localhost"
   export HARDHAT_DVS_PATH="/app/dvs-contracts-template/deployments/localhost"
-  export TASKGATEWAY_RPC_CLIENT_URL=${TASKGATEWAY_RPC_CLIENT_URL:-task-gateway:8949}
+  export TASKGATEWAY_RPC_CLIENT_URL=${TASKGATEWAY_RPC_CLIENT_URL:-gateway:8949}
   export PELLDVS_HOME=${PELLDVS_HOME:-/root/.pelldvs}
   export ETH_RPC_URL=${ETH_RPC_URL:-http://eth:8545}
   export ETH_WS_URL=${ETH_WS_URL:-ws://eth:8545}

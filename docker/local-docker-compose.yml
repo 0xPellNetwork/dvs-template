@@ -58,7 +58,7 @@ services:
       - ./pelldvs/scripts:/root/scripts
       - ../:/app
 
-  task-gateway:
+  gateway:
     image: pelldvs-squaring-operator:local-version
     environment:
       - ETH_RPC_URL=http://eth:8545
@@ -84,7 +84,7 @@ services:
     depends_on:
       dvs:
         condition: service_started
-      task-gateway:
+      gateway:
         condition: service_started
     entrypoint: [ "bash", "/root/scripts/start_operator.sh" ]
     volumes:
@@ -104,7 +104,7 @@ services:
     depends_on:
       dvs:
         condition: service_started
-      task-gateway:
+      gateway:
         condition: service_started
     entrypoint: [ "bash", "/root/scripts/start_operator.sh" ]
     volumes:
@@ -126,7 +126,7 @@ services:
         condition: service_started
       operator02:
         condition: service_started
-      task-gateway:
+      gateway:
         condition: service_started
     entrypoint: [ "bash", "/root/scripts/test.sh" ]
     volumes:
