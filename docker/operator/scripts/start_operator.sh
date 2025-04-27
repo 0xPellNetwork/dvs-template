@@ -34,22 +34,6 @@ function dvs_healthcheck {
   set -e
 }
 
-function task_gateway_healthcheck {
-  set +e
-  while true; do
-    curl -s $TASKGATEWAY_RPC_CLIENT_URL >/dev/null
-    if [ $? -eq 52 ]; then
-      echo "Task gateway RPC port is ready, proceeding to the next step..."
-      break
-    fi
-    echo "Task gateway RPC port not ready, retrying in 2 seconds..."
-    sleep 2
-  done
-  ## Wait for aggregator to be ready
-  sleep 3
-  set -e
-}
-
 ## FIXME: remove this logic after fix. Operator should never use admin key.
 function setup_admin_key {
   export ADMIN_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
@@ -79,8 +63,8 @@ EOF
 }
 
 function start_operator {
-  # squaringd start-operator --home "$PELLDVS_HOME"
-  squaringd start --home "$PELLDVS_HOME"
+  # operator start-operator --home "$PELLDVS_HOME"
+  dvstemplated start --home "$PELLDVS_HOME"
 }
 
 ## start sshd
@@ -91,9 +75,6 @@ load_defaults
 
 logt "Check if DVS is ready"
 dvs_healthcheck
-
-logt "Check if Task Gateway is ready"
-task_gateway_healthcheck
 
 if [ ! -f /root/operator_initialized ]; then
   logt "Init operator"

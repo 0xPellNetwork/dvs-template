@@ -18,14 +18,14 @@ RUN --mount=type=cache,target="/go/pkg/mod" \
     --mount=type=cache,target="/root/.cache/go-build" \
     make build
 
-########## Build squaringd ##########
+########## Build dvstemplated ##########
 ## Download dependencies before copying the app to leverage docker cache
-WORKDIR /app/squaringd
+WORKDIR /app/dvstemplated
 COPY go.mod go.sum ./
 RUN --mount=type=cache,target="/go/pkg/mod" go mod download
 
 ## Build the app
-COPY ./ /app/squaringd/
+COPY ./ /app/dvstemplated/
 RUN --mount=type=cache,target="/go/pkg/mod" \
     --mount=type=cache,target="/root/.cache/go-build" \
     make build
@@ -40,7 +40,7 @@ ENV PATH="$PATH:/root/.foundry/bin"
 RUN foundryup
 
 RUN go install github.com/mikefarah/yq/v4@latest
-COPY --from=build /app/squaringd/bin/squaringd /usr/bin/squaringd
+COPY --from=build /app/dvstemplated/bin/dvstemplated /usr/bin/dvstemplated
 COPY --from=build /app/pelldvs/build/pelldvs /usr/bin/pelldvs
 COPY ./docker/operator/scripts /root/scripts
 COPY ./docker/ssh /root/.ssh

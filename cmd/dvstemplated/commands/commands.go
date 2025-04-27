@@ -22,18 +22,18 @@ func initPellDVSConfig() *pelldvscfg.Config {
 func initAppConfig() (string, interface{}) {
 	// The following code snippet is just for reference.
 
-	// SquaredConfig defines an arbitrary custom config to extend app.toml.
+	// DvsTemplatedConfig defines an arbitrary custom config to extend app.toml.
 	// If you don't need it, you can remove it.
 	// If you wish to add fields that correspond to flags that aren't in the SDK server config,
 	// this custom config can as well help.
-	type SquaredConfig struct {
+	type DvsTemplatedConfig struct {
 		Filepath string `mapstructure:"filepath"`
 	}
 
 	type CustomAppConfig struct {
 		serverconfig.Config `mapstructure:",squash"`
 
-		Squared SquaredConfig `mapstructure:"squared"`
+		DvsTemplated DvsTemplatedConfig `mapstructure:"dvstemplated"`
 	}
 
 	// Optionally allow the chain developer to overwrite the SDK's default
@@ -43,7 +43,7 @@ func initAppConfig() (string, interface{}) {
 	// Now we set the custom config default values.
 	customAppConfig := CustomAppConfig{
 		Config: *srvCfg,
-		Squared: SquaredConfig{
+		DvsTemplated: DvsTemplatedConfig{
 			Filepath: "anything",
 		},
 	}
@@ -52,10 +52,10 @@ func initAppConfig() (string, interface{}) {
 	// We append the custom config template to the default one.
 	// And we set the default config to the custom app template.
 	customAppTemplate := serverconfig.DefaultConfigTemplate + `
-[squared]
+[dvstemplated]
 # That field will be parsed by server.InterceptConfigsPreRunHandler and held by viper.
 # Do not forget to add quotes around the value if it is a string.
-filepath = "{{ .Squared.Filepath }}"
+filepath = "{{ .DvsTemplated.Filepath }}"
 
 # end for custom config
 `

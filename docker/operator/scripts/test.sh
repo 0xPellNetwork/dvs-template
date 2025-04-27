@@ -50,33 +50,17 @@ iterate_operators() {
 load_defaults
 iterate_operators $OPERATOR_SEVER_NAME_LIST
 
-ADMIN_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
-SERVICE_MANAGER_ADDRESS=$(ssh hardhat "cat $HARDHAT_DVS_PATH/IncredibleSquaringServiceManager-Proxy.json" | jq -r .address)
+asyncURL="http://operator:26657/request_dvs_async?data=%22221111111111=57945678901234567890123456789017%22&height=111&chainid=1337"
+asyncResponse=$(curl -sS -H "Accept: application/json" -X GET "$asyncURL")
 
-## create a new task
-NUMBER_TO_BE_SQUARED=$((RANDOM % 10))
-RESULT_OF_SQUARED_NUMBER=$((NUMBER_TO_BE_SQUARED * NUMBER_TO_BE_SQUARED))
-THREADSHOLD=2 # percentage point
-GROUP_NUMBERS=0x00
-cast send "$SERVICE_MANAGER_ADDRESS" "createNewTask(uint256,uint32,bytes)" $NUMBER_TO_BE_SQUARED $THREADSHOLD $GROUP_NUMBERS --private-key "$ADMIN_KEY"
+asyncExpectedStr="{\"jsonrpc\":\"2.0\",\"id\":-1,\"result\":{\"hash\":\"629E74E9238DC7C66902734AD02BA77B3EA52AF68B352190012780537F220516\"}}"
 
-## wait for the task to be processed
-export TIMEOUT_FOR_TASK_PROCESS=${TIMEOUT_FOR_TASK_PROCESS:-8}
-export TIMEOUT_FOR_TASK_PROCESS=$TIMEOUT_FOR_TASK_PROCESS
-echo "wait ${TIMEOUT_FOR_TASK_PROCESS} seconds for the task to be processed"
-sleep ${TIMEOUT_FOR_TASK_PROCESS}
-TASK_NUMBER=$(cast call "$SERVICE_MANAGER_ADDRESS" "taskNumber()(uint32)" --private-key "$ADMIN_KEY" | xargs printf "%d")
-RESULT=$(cast call "$SERVICE_MANAGER_ADDRESS" "numberSquareds(uint32)(uint256)" $((TASK_NUMBER - 1)))
-assert_eq "$RESULT" "$RESULT_OF_SQUARED_NUMBER"
+if echo "$asyncResponse" | grep -q "$asyncExpectedStr"; then
+	echo "$asyncResponse"
+	echo "test async rpc task: ok"
+else
+	exit 1
+fi
 
-sleep 5
-logt "preparing to check task result from API"
-# check via REST API
-TASK_ID=$((TASK_NUMBER - 1))
-RESPONSE=$(curl -s -X GET "http://${QUERY_SERVER_ADDR}/dvs/squared/v1/tasks/${TASK_ID}")
-logt "Response from API: $RESPONSE"
-RESULT_FROM_API=$(echo $RESPONSE | jq -r .value.result )
-logt "Result from API: $RESULT_FROM_API"
-assert_eq "$RESULT_FROM_API" "$RESULT_OF_SQUARED_NUMBER"
 
 logt "test done"

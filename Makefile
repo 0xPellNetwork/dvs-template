@@ -42,8 +42,6 @@ docker-all-logs-in-ci:
 		echo -e "\n\n\t==================== emulator logs end \n\n" && \
 		docker compose logs dvs -n 50 && \
 		echo -e "\n\n\t==================== dvs logs end \n\n" && \
-		docker compose logs gateway -n 50 && \
-		echo -e "\n\n\t==================== gateway logs end \n\n" && \
 		docker compose logs operator -n 50 && \
 		echo -e "\n\n\t==================== operator logs end \n\n"
 
@@ -106,23 +104,6 @@ docker-dvs-rerun:
 	make docker-dvs-down
 	make docker-dvs-up
 	make docker-dvs-logs
-
-docker-gateway-up:
-	@cd docker && docker compose up gateway -d
-
-docker-gateway-down:
-	@cd docker && docker compose down gateway -v
-
-docker-gateway-logs:
-	@cd docker && docker compose logs gateway -f
-
-docker-gateway-shell:
-	@cd docker && docker compose exec -it gateway bash
-
-docker-gateway-rerun:
-	make docker-gateway-down
-	make docker-gateway-up
-	make docker-gateway-logs
 
 # targets for mutiple operators
 docker-operator-all-up:
@@ -196,7 +177,6 @@ docker-operator-rerun:
 	make docker-operator-logs
 .PHONY: docker-operator-one-rerun
 
-
 docker-test:
 	@cd docker && docker compose run --rm test
 
@@ -207,7 +187,7 @@ test:
 	@go test ./...
 
 build:
-	@go build -mod=readonly -o bin/squaringd ./cmd/squaringd
+	@go build -mod=readonly -o bin/dvstemplated ./cmd/dvstemplated
 
 #? lint: Run latest golangci-lint linter
 lint:
@@ -220,9 +200,7 @@ lint-imports:
 	@find . -name "*.go" -not -path "./vendor/*" -not -path "./.git/*" | while read -r file; do \
 		goimports-reviser -rm-unused -format "$$file"; \
 	done
-	
-.PHONY: proto
+
 proto:
-	@rm -rf dvs/squared/types/query.pb.gw.go
-	@cd proto && buf generate --template buf.gen.gogo.yaml
-	@mv -f dvs/squared/query.pb.gw.go dvs/squared/types/
+	@exit 0
+.PHONY: proto

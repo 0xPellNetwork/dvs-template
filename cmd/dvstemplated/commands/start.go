@@ -17,13 +17,10 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/0xPellNetwork/dvs-template/app"
-	chainconnector "github.com/0xPellNetwork/dvs-template/chain_connector"
-	dvsappcfg "github.com/0xPellNetwork/dvs-template/config"
-	sqserver "github.com/0xPellNetwork/dvs-template/dvs/squared/server"
 )
 
 func addFlags(cmd *cobra.Command) {
-	cmd.Flags().String("squared-config", "", "Path to the squared config file")
+	cmd.Flags().String("config", "", "Path to the dvstemplated config file")
 }
 
 // execPostSetup initializes and configures various components of the server after setup, such as loading configurations,
@@ -43,36 +40,6 @@ func execPostSetup(svrCtx *server.Context, clientCtx client.Context, ctx context
 
 	pellDVSConfig.SetRoot(DefaultNodeHome)
 
-	squaringConfig, err := dvsappcfg.LoadAppConfig(fmt.Sprintf("%s/%s", DefaultNodeHome, "config/squaring.config.json"))
-	if err != nil {
-		logger.Error("Failed to load squaring config", "error", err)
-		panic(fmt.Errorf("failed to load squaring config: %w", err))
-	}
-
-	sqserver.ChainConnector, err = chainconnector.NewClient(squaringConfig.GatewayRPCClientURL)
-	if err != nil {
-		logger.Error("Failed to create Chain Connector client", "error", err)
-		return fmt.Errorf("failed to create Chain Connector client: %v", err)
-	}
-
-	// create the dispatcher
-	td, err := NewTaskDispatcher(
-		svrCtx.Logger,
-		pellDVSConfig.Pell.InteractorConfigPath,
-		squaringConfig.ChainServiceManagerAddress,
-	)
-	if err != nil {
-		panic("failed to create TaskDispatcher: " + err.Error())
-	}
-
-	g.Go(func() error {
-		if err := td.Start(); err != nil {
-			logger.Error("Failed to start task dispatcher", "error", err)
-			return fmt.Errorf("failed to start TaskDispatcher: %w", err)
-		}
-		return nil
-	})
-
 	svrCtx.Logger.Info("Dispatcher started")
 	return nil
 }
@@ -89,7 +56,7 @@ func postSetup(svrCtx *server.Context, clientCtx client.Context, ctx context.Con
 // openDB opens the database
 func openDB(rootDir string, backendType dbm.BackendType) (dbm.DB, error) {
 	dataDir := filepath.Join(rootDir, "data")
-	return dbm.NewDB("squaredapp", backendType, dataDir)
+	return dbm.NewDB("dvstemplatedapp", backendType, dataDir)
 }
 
 // InitRunOperatorCommand initializes the run operator command

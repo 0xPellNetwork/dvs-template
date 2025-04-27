@@ -18,9 +18,6 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/std"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-
-	sqmodule "github.com/0xPellNetwork/dvs-template/dvs/squared"
-	sqtypes "github.com/0xPellNetwork/dvs-template/dvs/squared/types"
 )
 
 const (
@@ -81,11 +78,11 @@ func NewApp(
 	std.RegisterInterfaces(app.InterfaceRegistry)
 	authtypes.RegisterInterfaces(app.InterfaceRegistry)
 
-	sqMoudleStoreKey := storetypes.NewKVStoreKey(sqtypes.ModuleName)
-	app.logger.Info("Mounting query store", "key", sqMoudleStoreKey.String())
+	exampleStoreKey := storetypes.NewKVStoreKey("dvs-template")
+	app.logger.Info("Mounting query store", "key", exampleStoreKey.String())
 
 	// mount the store
-	app.MountStore(sqMoudleStoreKey, storetypes.StoreTypeIAVL)
+	app.MountStore(exampleStoreKey, storetypes.StoreTypeIAVL)
 
 	// load latest version
 	app.logger.Info("Loading latest version")
@@ -95,16 +92,10 @@ func NewApp(
 		panic(fmt.Sprintf("failed to load latest version: %v", err))
 	}
 
-	txMgr := sdktypes.NewAppTxManager(app.BaseApp)
-	queryMgr := sdktypes.NewAppQueryManager(app.BaseApp)
 	app.BaseApp.SetGRPCQueryRouter(baseapp.NewGRPCQueryRouter())
 	app.BaseApp.GRPCQueryRouter().SetInterfaceRegistry(app.InterfaceRegistry)
 
-	// Register DVS module services
-	sqModule := sqmodule.NewAppModule(app.logger, sqMoudleStoreKey, txMgr, queryMgr)
-
-	app.ModuleManager = sdktypes.NewManager(sqModule)
-
+	app.ModuleManager = sdktypes.NewManager()
 	app.ModuleManager.RegisterInterfaces(app.InterfaceRegistry)
 	app.ModuleManager.RegisterServices(app.GetMsgRouter().GetConfigurator())
 	app.ModuleManager.RegisterResultMsgExtractors(app.GetMsgRouter().GetConfigurator())

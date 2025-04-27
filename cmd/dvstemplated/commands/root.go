@@ -37,8 +37,8 @@ func RootCmd() *cobra.Command {
 		WithInterfaceRegistry(codectypes.NewInterfaceRegistry())
 
 	cmd := &cobra.Command{
-		Use:   "squared",
-		Short: "Square number application developed based on PellDvs",
+		Use:   "dvstemplated",
+		Short: "a template for pelldvs application",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return nil
 		},
