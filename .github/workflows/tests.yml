@@ -5,7 +5,7 @@ on:
     paths:
       - "**.go"
     branches:
-      - main
+      - squaring
 jobs:
   tests:
     runs-on: ["self-hosted", "Linux", "X64", "ci"]

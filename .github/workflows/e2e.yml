@@ -6,7 +6,7 @@ on:
   pull_request:
   push:
     branches:
-      - main
+      - squaring
 jobs:
   e2e-test:
     runs-on: [ "self-hosted", "Linux", "X64", "ci" ]

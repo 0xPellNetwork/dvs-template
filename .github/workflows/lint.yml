@@ -16,7 +16,7 @@ on:
     paths:
       - "**.go"
     branches:
-      - main
+      - squaring
 jobs:
   golangci:
     name: golangci-lint
