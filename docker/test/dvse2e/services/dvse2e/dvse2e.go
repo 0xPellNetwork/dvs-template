@@ -3,18 +3,18 @@ package dvse2e
 import (
 	"context"
 	"fmt"
-	resulthandlers "github.com/0xPellNetwork/dvs-template/dvs/squared/result"
-	sqtypes "github.com/0xPellNetwork/dvs-template/dvs/squared/types"
-	"github.com/0xPellNetwork/pellapp-sdk/service/tx"
 
 	sqcontract "github.com/0xPellNetwork/dvs-contracts-template/bindings/IncredibleSquaringServiceManager"
-	"github.com/ethereum/go-ethereum/common"
-
+	"github.com/0xPellNetwork/pellapp-sdk/service/tx"
 	"github.com/0xPellNetwork/pelldvs-interactor/chainlibs/eth"
 	"github.com/0xPellNetwork/pelldvs/libs/log"
 	ctypes "github.com/0xPellNetwork/pelldvs/rpc/core/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/ethereum/go-ethereum/common"
+
+	resulthandlers "github.com/0xPellNetwork/dvs-template/dvs/squared/result"
+	sqtypes "github.com/0xPellNetwork/dvs-template/dvs/squared/types"
 )
 
 // PellDVSE2ERunner is responsible for running end-to-end operations in the DVS system with Ethereum-based integration.

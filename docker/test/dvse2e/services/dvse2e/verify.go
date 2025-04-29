@@ -3,14 +3,14 @@ package dvse2e
 import (
 	"context"
 	"fmt"
-	sqtypes "github.com/0xPellNetwork/dvs-template/dvs/squared/types"
-	"github.com/pkg/errors"
 	"math/big"
 
 	sqcontract "github.com/0xPellNetwork/dvs-contracts-template/bindings/IncredibleSquaringServiceManager"
-
 	"github.com/0xPellNetwork/pelldvs/crypto/bls"
 	coretypes "github.com/0xPellNetwork/pelldvs/rpc/core/types"
+	"github.com/pkg/errors"
+
+	sqtypes "github.com/0xPellNetwork/dvs-template/dvs/squared/types"
 )
 
 // callVerify calls the Verify method on the service manager contract.

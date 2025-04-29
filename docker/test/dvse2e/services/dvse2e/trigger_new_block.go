@@ -4,12 +4,13 @@ import (
 	"context"
 	"crypto/ecdsa"
 	"fmt"
+	"math/big"
+	"strings"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
-	"math/big"
-	"strings"
 )
 
 // TriggerAnvilNewBlocks triggers new blocks on the Anvil blockchain by transferring Ether from one account to another.

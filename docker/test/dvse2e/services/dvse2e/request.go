@@ -2,9 +2,11 @@ package dvse2e
 
 import (
 	"context"
-	sqtypes "github.com/0xPellNetwork/dvs-template/dvs/squared/types"
+
 	"github.com/0xPellNetwork/pelldvs/rpc/client/http"
 	ctypes "github.com/0xPellNetwork/pelldvs/rpc/core/types"
+
+	sqtypes "github.com/0xPellNetwork/dvs-template/dvs/squared/types"
 )
 
 // PrepareSquaringRequest prepares a squaring request, the `Squared` field is set to "2".

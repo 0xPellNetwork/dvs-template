@@ -4,8 +4,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/0xPellNetwork/dvs-template/docker/test/dvse2e/cmd/dvse2e/commands"
 	"github.com/0xPellNetwork/pelldvs/libs/cli"
+
+	"github.com/0xPellNetwork/dvs-template/docker/test/dvse2e/cmd/dvse2e/commands"
 )
 
 func main() {
