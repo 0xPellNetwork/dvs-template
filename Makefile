@@ -183,7 +183,7 @@ docker-operator-rerun:
 
 
 docker-test:
-	@cd docker && docker compose run --rm test
+	make docker-test-dvse2e
 
 docker-test-dvse2e:
 	@cd docker && docker compose run --rm test-dvse2e
