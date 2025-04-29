@@ -29,13 +29,16 @@ jobs:
       - name: Stop services
         run: make docker-all-down
       - name: Start services
-        run: make docker-up-operator
+        run: make docker-operator-up
       - name: Check docker service status
         run: make docker-all-status
       - name: Test services
         run: make docker-test
         env:
           TIMEOUT_FOR_TASK_PROCESS: 20
+      - name: Print logs
+        run: make docker-all-logs-in-ci
+        if: always()
       - name: Stop services
         run: make docker-all-down
         if: always()

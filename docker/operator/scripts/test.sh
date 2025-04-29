@@ -8,6 +8,12 @@ function load_defaults {
   export PELLDVS_HOME=${PELLDVS_HOME:-/root/.pelldvs}
   export ETH_RPC_URL=${ETH_RPC_URL:-http://eth:8545}
   export ETH_WS_URL=${ETH_WS_URL:-ws://eth:8545}
+  export QUERY_SERVER_ADDR=${QUERY_SERVER_ADDR:-operator:8123}
+  export OPERATOR_SEVER_NAME_LIST=${OPERATOR_SEVER_NAME_LIST:-"operator"}
+}
+
+logt() {
+  echo "$(date '+%Y-%m-%d %H:%M:%S') $1"
 }
 
 function operator_healthcheck {
@@ -35,29 +41,26 @@ function assert_eq {
   echo "[PASS] Expected $1 to be equal to $2"
 }
 
+iterate_operators() {
+    for operator in "$OPERATOR_SEVER_NAME_LIST"; do
+        operator_healthcheck "$operator"
+    done
+}
+
 load_defaults
-operator_healthcheck operator01
-operator_healthcheck operator02
+iterate_operators $OPERATOR_SEVER_NAME_LIST
 
-ADMIN_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
-SERVICE_MANAGER_ADDRESS=$(ssh hardhat "cat $HARDHAT_DVS_PATH/IncredibleSquaringServiceManager-Proxy.json" | jq -r .address)
+asyncURL="http://operator:26657/request_dvs_async?data=%22221111111111=57945678901234567890123456789017%22&height=111&chainid=1337"
+asyncResponse=$(curl -sS -H "Accept: application/json" -X GET "$asyncURL")
 
-## create a new task
-NUMBER_TO_BE_SQUARED=${NUMBER_TO_BE_SQUARED:-2}
-RESULT_OF_SQUARED_NUMBER=$((NUMBER_TO_BE_SQUARED * NUMBER_TO_BE_SQUARED))
-THREADSHOLD=2 # percentage point
-GROUP_NUMBERS=0x00
-cast send "$SERVICE_MANAGER_ADDRESS" "createNewTask(uint256,uint32,bytes)" $NUMBER_TO_BE_SQUARED $THREADSHOLD $GROUP_NUMBERS --private-key "$ADMIN_KEY"
+asyncExpectedStr="{\"jsonrpc\":\"2.0\",\"id\":-1,\"result\":{\"hash\":\"629E74E9238DC7C66902734AD02BA77B3EA52AF68B352190012780537F220516\"}}"
 
-## wait for the task to be processed
-export TIMEOUT_FOR_TASK_PROCESS=${TIMEOUT_FOR_TASK_PROCESS:-8}
-export TIMEOUT_FOR_TASK_PROCESS=$TIMEOUT_FOR_TASK_PROCESS
-echo "wait ${TIMEOUT_FOR_TASK_PROCESS} seconds for the task to be processed"
-sleep ${TIMEOUT_FOR_TASK_PROCESS}
-TASK_NUMBER=$(cast call "$SERVICE_MANAGER_ADDRESS" "taskNumber()(uint32)" --private-key "$ADMIN_KEY" | xargs printf "%d")
-RESULT=$(cast call "$SERVICE_MANAGER_ADDRESS" "numberSquareds(uint32)(uint256)" $((TASK_NUMBER - 1)))
-assert_eq "$RESULT" "$RESULT_OF_SQUARED_NUMBER"
+if echo "$asyncResponse" | grep -q "$asyncExpectedStr"; then
+	echo "$asyncResponse"
+	echo "test async rpc task: ok"
+else
+	exit 1
+fi
 
-# cast call "$SERVICE_MANAGER_ADDRESS" "allTaskResponses(uint32)" $((TASK_NUMBER - 1))
-# RETRIEVER_ADDRESS=$(ssh hardhat "cat $HARDHAT_DVS_PATH/OperatorStateRetriever.json" | jq -r .address)
-# cast call "$RETRIEVER_ADDRESS" "GetGroupsDVSStateAtBlock(uint32)" $TASK_ID --private-key "$ADMIN_KEY"
+
+logt "test done"

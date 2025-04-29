@@ -54,7 +54,7 @@ EOF
 }
 
 function start_aggregator {
-  squaringd start-aggregator --home "$PELLDVS_HOME"
+  dvstemplated start-aggregator --home "$PELLDVS_HOME"
 }
 
 logt "Load Default Values for ENV Vars if not set."
