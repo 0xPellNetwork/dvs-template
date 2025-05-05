@@ -78,27 +78,6 @@ services:
         max-size: "100m"
         max-file: "3"
 
-  gateway:
-    image: pelldvs-squaring-operator:latest
-    environment:
-      - ETH_RPC_URL=http://eth:8545
-      - ETH_WS_URL=ws://eth:8545
-    depends_on:
-      emulator:
-        condition: service_started
-    entrypoint: [ "bash", "/root/scripts/start_task_gateway.sh" ]
-    volumes:
-      - ./task_gateway/scripts:/root/scripts
-    healthcheck:
-      test: [ "CMD", "test", "-f", "/root/task_gatewa_initialized" ]
-      start_period: 50s
-      retries: 3
-      interval: 10s
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "100m"
-        max-file: "3"
 
   operator:
     image: pelldvs-squaring-operator:latest
@@ -109,8 +88,6 @@ services:
       - REGISTRY_ROUTER_ADDRESS=${REGISTRY_ROUTER_ADDRESS}
     depends_on:
       dvs:
-        condition: service_started
-      gateway:
         condition: service_started
     entrypoint: [ "bash", "/root/scripts/start_operator.sh" ]
     volumes:
@@ -136,8 +113,6 @@ services:
     depends_on:
       operator:
         condition: service_started
-      gateway:
-        condition: service_started
     entrypoint: [ "bash", "/root/scripts/test.sh" ]
     volumes:
       - ./operator/scripts:/root/scripts
@@ -146,3 +121,16 @@ services:
       options:
         max-size: "100m"
         max-file: "3"
+
+  test-dvse2e:
+    image: pelldvs-squaring-dvse2e:latest
+    environment:
+      - ETH_RPC_URL=http://eth:8545
+      - ETH_WS_URL=ws://eth:8545
+      - TIMEOUT_FOR_TASK_PROCESS=${TIMEOUT_FOR_TASK_PROCESS:-10}
+    depends_on:
+      operator:
+        condition: service_started
+    entrypoint: [ "bash", "/root/scripts/dvse2e-test.sh" ]
+    volumes:
+      - ./dvse2e/scripts:/root/scripts

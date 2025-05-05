@@ -10,7 +10,6 @@ logt() {
 function load_defaults {
   export HARDHAT_CONTRACTS_PATH="/app/dvs-contracts-template/lib/pell-middleware-contracts/lib/pell-contracts/deployments/localhost"
   export HARDHAT_DVS_PATH="/app/dvs-contracts-template/deployments/localhost"
-  export TASKGATEWAY_RPC_CLIENT_URL=${TASKGATEWAY_RPC_CLIENT_URL:-gateway:8949}
   export PELLDVS_HOME=${PELLDVS_HOME:-/root/.pelldvs}
   export ETH_RPC_URL=${ETH_RPC_URL:-http://eth:8545}
   export ETH_WS_URL=${ETH_WS_URL:-ws://eth:8545}
@@ -27,22 +26,6 @@ function dvs_healthcheck {
       break
     fi
     echo "DVS RPC port not ready, retrying in 2 seconds..."
-    sleep 2
-  done
-  ## Wait for aggregator to be ready
-  sleep 3
-  set -e
-}
-
-function task_gateway_healthcheck {
-  set +e
-  while true; do
-    curl -s $TASKGATEWAY_RPC_CLIENT_URL >/dev/null
-    if [ $? -eq 52 ]; then
-      echo "Task gateway RPC port is ready, proceeding to the next step..."
-      break
-    fi
-    echo "Task gateway RPC port not ready, retrying in 2 seconds..."
     sleep 2
   done
   ## Wait for aggregator to be ready
@@ -91,9 +74,6 @@ load_defaults
 
 logt "Check if DVS is ready"
 dvs_healthcheck
-
-logt "Check if Task Gateway is ready"
-task_gateway_healthcheck
 
 if [ ! -f /root/operator_initialized ]; then
   logt "Init operator"

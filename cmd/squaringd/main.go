@@ -9,7 +9,6 @@ import (
 func main() {
 	rootCmd := commands.RootCmd()
 	rootCmd.AddCommand(
-		commands.StartTaskGatewayCmd,
 		commands.StartAggregatorCmd,
 	)
 	commands.InitRunOperatorCommand(rootCmd)

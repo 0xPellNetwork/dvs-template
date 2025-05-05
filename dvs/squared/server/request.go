@@ -16,18 +16,14 @@ func (s *Server) RequestNumberSquared(ctx context.Context, request *types.Reques
 		return nil, fmt.Errorf("failed to convert string to int for %v", request.Task.Squared)
 	}
 
-	numInt := num.Int64()
-	s.logger.Info("ProcessRequestNumberSquared", "Number", fmt.Sprintf("%+v", numInt))
-
-	// Calculate square
-	squaredInt := numInt * numInt
-	squared := math.NewInt(squaredInt)
+	sq := num.Mul(num)
 
 	key := []byte(apptypes.GenItemKey(request.Task.TaskIndex))
 	result := types.TaskResult{
 		TaskRequest: request.Task,
 		IsOnChain:   false,
 	}
+
 	bresult, _ := result.Marshal()
 	commitID, err := s.txMgr.Set(ctx, s.storeKey, key, bresult)
 	if err != nil {
@@ -35,8 +31,8 @@ func (s *Server) RequestNumberSquared(ctx context.Context, request *types.Reques
 	}
 
 	s.logger.Info("Calculated square",
-		"input", numInt,
-		"result", squared,
+		"input", num.String(),
+		"result", sq.String(),
 		"store-key-str", string(key),
 		"store-key-bytes", fmt.Sprintf("%+v", key),
 		"store-value-raw", result,
@@ -46,6 +42,6 @@ func (s *Server) RequestNumberSquared(ctx context.Context, request *types.Reques
 
 	return &types.RequestNumberSquaredOut{
 		TaskIndex: request.Task.TaskIndex,
-		Squared:   squared.String(),
+		Squared:   sq.String(),
 	}, nil
 }

@@ -25,6 +25,10 @@ docker-build-operator: check-env-gh-token
 	@cd docker && docker compose -f docker-compose.build.yml build operator
 	@echo "docker build operator done, `date`"
 
+docker-build-dvse2e: check-env-gh-token
+	@cd docker && docker compose -f docker-compose.build.yml build dvse2e
+	@echo "docker build operator done, `date`"
+
 docker-all-up:
 	@cd docker && docker compose up -d
 
@@ -42,8 +46,6 @@ docker-all-logs-in-ci:
 		echo -e "\n\n\t==================== emulator logs end \n\n" && \
 		docker compose logs dvs -n 50 && \
 		echo -e "\n\n\t==================== dvs logs end \n\n" && \
-		docker compose logs gateway -n 50 && \
-		echo -e "\n\n\t==================== gateway logs end \n\n" && \
 		docker compose logs operator -n 50 && \
 		echo -e "\n\n\t==================== operator logs end \n\n"
 
@@ -106,23 +108,6 @@ docker-dvs-rerun:
 	make docker-dvs-down
 	make docker-dvs-up
 	make docker-dvs-logs
-
-docker-gateway-up:
-	@cd docker && docker compose up gateway -d
-
-docker-gateway-down:
-	@cd docker && docker compose down gateway -v
-
-docker-gateway-logs:
-	@cd docker && docker compose logs gateway -f
-
-docker-gateway-shell:
-	@cd docker && docker compose exec -it gateway bash
-
-docker-gateway-rerun:
-	make docker-gateway-down
-	make docker-gateway-up
-	make docker-gateway-logs
 
 # targets for mutiple operators
 docker-operator-all-up:
@@ -198,7 +183,10 @@ docker-operator-rerun:
 
 
 docker-test:
-	@cd docker && docker compose run --rm test
+	make docker-test-dvse2e
+
+docker-test-dvse2e:
+	@cd docker && docker compose run --rm test-dvse2e
 
 docker-test-multiple-operators:
 	@bash ./docker/scripts/test-in-host.sh
@@ -207,7 +195,14 @@ test:
 	@go test ./...
 
 build:
+	@echo "--> Building squaringd"
 	@go build -mod=readonly -o bin/squaringd ./cmd/squaringd
+.PHONY: build
+
+build-dvse2e:
+	@echo "--> Building dvse2e"
+	@go build -o bin/dvse2e ./docker/test/dvse2e/cmd/dvse2e
+.PHONY: build-dvse2e
 
 #? lint: Run latest golangci-lint linter
 lint:
